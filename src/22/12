@@ -1,0 +1,13 @@
+#include <Stamp.h>
+struct Data {
+    bool sw;
+    char inp[10];
+    uint16_t sld;
+    float spin;
+    Stamp date;
+    GHcolor col;
+    GHflags flags;
+};
+
+Data data;
+hub.Date(&data.date);

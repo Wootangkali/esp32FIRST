@@ -1,0 +1,210 @@
+// PCF.write(2, 0);  
+// delay(3000);
+//  Serial.println("");
+ 
+
+    // PCF.write(2, 1); 
+// if (grelka == 1) {
+// //Lcd. fillCircle(240, 39, 7, RED);
+// }
+// if (grelka == 0) {
+// //Lcd. fillCircle(240, 39, 7, BLUE);
+// };
+  // if  (DP == true){
+
+
+
+
+
+//  if (tmr2.tick()){ 
+//     tmr2 = millis();
+// Connect or reconnect to WiFi
+  // if(WiFi.status() != WL_CONNECTED){
+  //   Serial.print("Attempting to connect to SSID: ");
+  //   Serial.println(SECRET_SSID);
+  //   while(WiFi.status() != WL_CONNECTED){
+  //     WiFi.begin(ssid, pass);  // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+  //     Serial.print(".");
+  //     delay(5000);     
+  //   } 
+  //   Serial.println("\nConnected.");
+  // }
+
+  // // set the fields with the values
+  // ThingSpeak.setField(1, number1);
+  // ThingSpeak.setField(2, number2);
+  // ThingSpeak.setField(3, number3);
+  // ThingSpeak.setField(4, number4);
+// //  
+// if (tmr2.tick()){ 
+// //     tmr2 = millis();
+//   // Connect or reconnect to WiFi
+//   if(WiFi.status() != WL_CONNECTED){
+//     Serial.print("Attempting to connect to SSID: ");
+//     Serial.println(SECRET_SSID);
+//     while(WiFi.status() != WL_CONNECTED){
+//       WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+//       Serial.print(".");
+//       delay(5000);     
+//     } 
+//     Serial.println("\nConnected.");
+ 
+
+//   // Write to ThingSpeak. There are up to 8 fields in a channel, allowing you to store up to 8 different
+//   // pieces of information in a channel.  Here, we write to field 1.
+//  ThingSpeak.writeField(myChannelNumber, 1, grelka, myWriteAPIKey);
+//  ThingSpeak.writeField(myChannelNumber, 2, Wtemp, myWriteAPIKey);
+//  ThingSpeak.writeField(myChannelNumber, 3, Rtemp, myWriteAPIKey);
+//  ThingSpeak.writeField(myChannelNumber, 4, waterSENS, myWriteAPIKey);
+//  ThingSpeak.writeField(myChannelNumber, 5, dolivSENS, myWriteAPIKey);
+// }};
+
+ 
+//  ThingSpeak.setField(1, Wtemp);
+//   ThingSpeak.setField(2, Rtemp);
+//   ThingSpeak.setField(3, waterSENS);
+//   ThingSpeak.setField(4, dolivSENS);
+//  ThingSpeak.setField(5, grelka);
+//   ThingSpeak.setField(6, podachawater);
+//   ThingSpeak.setField(7, dolivpompa);
+//   ThingSpeak.setField(8, polivpompa);
+
+
+ 
+
+
+   // ThingSpeak.writeField(myChannelNumber, 5, grelka, myWriteAPIKey);
+  // ThingSpeak.writeField(myChannelNumber, 6, podachawater, myWriteAPIKey);
+  // ThingSpeak.writeField(myChannelNumber, 7, dolivpompa, myWriteAPIKey);
+  //  ThingSpeak.writeField(myChannelNumber, 8, polivpompa, myWriteAPIKey);
+
+
+
+    // tmrWF = millis();
+// ThingSpeak.writeField(myChannelNumber, 1, Wtemp, myWriteAPIKey);
+  
+//   ThingSpeak.writeField(myChannelNumber, 2, Rtemp, myWriteAPIKey);
+//   ThingSpeak.writeField(myChannelNumber, 3, waterSENS, myWriteAPIKey);
+// ThingSpeak.writeField(myChannelNumber, 4, dolivSENS, myWriteAPIKey);
+
+//   ThingSpeak.setField(5, grelka);
+//   ThingSpeak.setField(6, podachawater);
+//   ThingSpeak.setField(7, dolivpompa);
+//   ThingSpeak.setField(8, polivpompa);
+
+
+
+// Serial.print("переменная долива--");
+// Serial.println(DP);
+
+
+// PCF.read(3);
+//   if((!digitalRead(33)) == LOW) 
+//   {
+//      PCF.write(4, 0);
+    
+//     Serial.println("Утечки НЕТ/220 ВКЛ"); 
+ 
+//   }
+// else
+
+
+// Serial.print("podachawater--");
+// Serial.println(podachawater);
+
+
+
+// Serial.print("dp");
+// Serial.println(polivpompa);
+
+
+// Serial.print("polivpompa--");
+// Serial.println(polivpompa);
+
+
+// Serial.print("dolivpompa--");
+// Serial.println(dolivpompa);
+
+// Serial.print("waterSENS--");
+// Serial.println(waterSENS);
+
+// Serial.println(dolivSENS);
+
+
+//   Serial.print("    Кипятильник   ");
+//   Serial.println(!PCF.read(0)); 
+//  Serial.print("    grelka   ");
+//  Serial.println(grelka); 
+
+
+  //   lcd.setCursor(0,2);
+  // lcd.print(val_utechka);
+  // lcd.setCursor(0,2);
+  // lcd.print(val_utechka);
+
+
+
+//   Serial.print("HyDro sens"); 
+//   Serial.println(dolivSENS); // Выводим значение в мониторе порта
+//  Serial.print("Hydro pompa doliv-");
+//  Serial.println(dolivpompa); // Выводим значение в мониторе порта
+//  Serial.print("Pompa Poliv"); 
+//  Serial.println(polivpompa); 
+
+
+
+   if (textp.tick()){ 
+   // textp = millis();
+  // if(WiFi.status() != WL_CONNECTED){
+  //   Serial.println("");
+  //   Serial.print("Attempting to connect to SSID: ");
+  //   Serial.println(SECRET_SSID);
+  //   while(WiFi.status() != WL_CONNECTED){
+  //     WiFi.begin(ssid, pass);  // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+  //     Serial.print(".");
+  //     Serial.println("");
+  //      delay(5000);     
+  //   }};
+
+
+    // Connect or reconnect to WiFi
+  // if(WiFi.status() != WL_CONNECTED){
+  //   Serial.println("");
+  //   Serial.print("Attempting to connect to SSID: ");
+  //   Serial.println(SECRET_SSID);
+  //   while(WiFi.status() != WL_CONNECTED){
+  //     WiFi.begin(ssid, pass);  // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+  //     Serial.print(".");
+  //     Serial.println("");
+  //     //  delay(5000);     
+  //   }};
+  // Write to ThingSpeak. There are up to 8 fields in a channel, allowing you to store up to 8 different
+  // pieces of information in a channel.  Here, we write to field 1.
+//   int x = ThingSpeak.writeField(myChannelNumber, 1, Wtemp, myWriteAPIKey);
+  
+//   ThingSpeak.writeField(myChannelNumber, 2, Rtemp, myWriteAPIKey);
+//   ThingSpeak.writeField(myChannelNumber, 3, waterSENS, myWriteAPIKey);
+// ThingSpeak.writeField(myChannelNumber, 4, dolivSENS, myWriteAPIKey);
+
+//   ThingSpeak.writeField(myChannelNumber, 5, grelka, myWriteAPIKey);
+//   ThingSpeak.writeField(myChannelNumber, 6, podachawater, myWriteAPIKey);
+//   ThingSpeak.writeField(myChannelNumber, 7, dolivpompa, myWriteAPIKey);
+//    ThingSpeak.writeField(myChannelNumber, 8, polivpompa, myWriteAPIKey);
+  // if(x == 200){
+  //   Serial.println("Channel update successful.");
+  // }
+  // // else{
+  // //   Serial.println("Problem updating channel. HTTP error code " + String(x));
+  // }
+  //  ThingSpeak.setField(1, Wtemp);
+//   ThingSpeak.setField(2, Rtemp);
+//   ThingSpeak.setField(3, waterSENS);
+//   ThingSpeak.setField(4, dolivSENS);
+//  ThingSpeak.setField(5, grelka);
+//   ThingSpeak.setField(6, podachawater);
+//   ThingSpeak.setField(7, dolivpompa);
+//   ThingSpeak.setField(8, polivpompa);
+  // change the value
+ 
+  
+    // }}};

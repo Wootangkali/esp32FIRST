@@ -1,0 +1,411 @@
+#include <Arduino.h>
+
+
+#include "PCF8575.h"  // https://github.com/xreef/PCF8575_library
+ 
+// Set i2c address
+PCF8575 PCF(0x20); 
+
+
+
+
+
+#include <microDS3231.h>
+MicroDS3231 rtc;
+
+//YWROBOT
+//Compatible with the Arduino IDE 2.0
+//Library version:1.1
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+
+int val_utechka1;
+
+uint32_t delayMS;
+
+long previousMillis = 0;
+
+
+
+
+ const int POLIV_Pompa = PCF.read(3);
+bool polivpompa;
+#define polivsamplingInterval   80000ul
+uint32_t polivTimer;
+ uint32_t myTimer1, myTimer2, myTimer3, myTimer4, myTimer5;
+uint32_t mytimedoliv;
+
+const int capteur_D = 2;
+const int capteur_A = 0;
+
+const int UTECHKA_PIN = 5;
+int val_utechka;
+int val_utechkaD;
+
+
+#include <TimerMs.h>
+// (период, мс), (0 не запущен / 1 запущен), (режим: 0 период / 1 таймер)
+TimerMs tmr(5000, 1, 1);
+TimerMs dolivpause(300000, 1, 1);
+TimerMs textp(5000, 1, 0);
+
+
+int value = 0;
+unsigned long next_time; // время очередного переключения первого светодиода
+int timeout = 2500; // половина периода мигания
+//int led_state = 0; // начальное состояние светодиода - выключен
+
+
+const int grelka_PIN= PCF.read(0);
+int grelka = 0;
+
+
+//Защита от дребезга контактов, например при волнах, когда работает насос.
+
+// Текущее состояние сенсора
+bool SensorState1 = HIGH;
+// Время начала смены 
+unsigned long SensorStartChange1 = 0;
+// Защитный интервал между сменами состояния
+unsigned long TIMEOUT1 = 1000;
+// Текущее время
+unsigned long CurrentTime1 = 0;
+#define Water_PIN = PCF.read(2);
+#define waterSENS_PIN 4;
+int waterSENS = 1;
+//Защита от дребезга контактов, например при волнах, когда работает насос.
+
+// Текущее состояние сенсора
+bool SensorState2 = HIGH;
+// Время начала смены 
+unsigned long SensorStartChange2 = 0;
+// Защитный интервал между сменами состояния
+unsigned long TIMEOUT2 = 20000;
+// Текущее время
+unsigned long CurrentTime2 = 0;
+#define doliv_pompa =  PCF.read(3); 
+#define doliv_sens GPIO_NUM_4;
+int dolivSENS;
+
+bool dolivpompa;
+bool dolivpause_raedy = 0;
+
+
+
+
+void setup()
+{ 
+  // pcf8575.begin();
+   PCF.begin();
+  lcd.begin(SDA, SCL); //initialize 1602  LiquidCrystal_I2C::begin(int8_t sda, int8_t scl) 
+  // Print a message to the LCD.
+  lcd.backlight();
+  lcd.setCursor(0,0);
+  lcd.print("Hello, world!");
+  lcd.setCursor(0,1);
+  lcd.print("by EasyIoT");
+// pinMode(4, INPUT);
+// pinMode(5, INPUT);
+// pinMode(0, INPUT);
+// pinMode(2, INPUT);
+
+ Serial.begin(115200);
+  
+  // проверка наличия модуля на линии i2c
+  if (!rtc.begin()) {
+    Serial.println("DS3231 not found");
+    for(;;);
+  }
+
+  // получаем все данные в структуру
+  DateTime now = rtc.getTime();
+
+  // меняем любой параметр
+  now.year += 5;
+  // now.second;
+  // now.minute;
+  // now.hour;
+  // now.day;
+  // now.date;
+  // now.month;
+
+  // отправляем в rtc
+  rtc.setTime(now);
+
+
+
+
+pinMode(POLIV_Pompa, OUTPUT);
+//  digitalWrite(POLIV_Pompa, HIGH);
+PCF.write(3, 1);
+
+//  pinMode(touch_PIN, INPUT);
+
+  pinMode(capteur_D, INPUT);
+  pinMode(capteur_A, INPUT);
+
+pinMode(UTECHKA_PIN, OUTPUT);
+
+
+//   pinMode(TOUCHPLUS, OUTPUT);
+// digitalWrite(TOUCHPLUS, HIGH);
+
+ tmr.setPeriodMode();
+dolivpause.setPeriodMode();
+
+pinMode(grelka_PIN, OUTPUT);
+//  PCF.write(0, 0); 
+
+
+// // Water_PIN это вода вход
+//   pinMode(Water_PIN, OUTPUT);
+//   // Вначале не льём
+//   digitalWrite(Water_PIN, HIGH);
+//   // Сенсор это вход
+//   pinMode(waterSENS_PIN, INPUT);
+
+
+//   // Светодиод это выход
+//   pinMode(doliv_pompa, OUTPUT);
+//   // Вначале не светим
+//   digitalWrite(doliv_pompa, HIGH);
+//   // Сенсор это вход
+//   pinMode(doliv_sens, INPUT);
+
+  // Set pinMode to OUTPUT
+
+//     pcf8575.pinMode(0, OUTPUT);
+//      pcf8575.pinMode(1, OUTPUT);
+//       pcf8575.pinMode(2, OUTPUT);
+//        pcf8575.pinMode(3, OUTPUT);
+//   pcf8575.pinMode(4, OUTPUT);
+ 
+//       pcf8575.digitalWrite(0, LOW);
+//        pcf8575.digitalWrite(1, LOW);
+//         pcf8575.digitalWrite(2, LOW);
+//          pcf8575.digitalWrite(3, LOW);
+  
+//  pcf8575.digitalWrite(4, LOW);
+  
+}
+ 
+
+// void printTime() {
+//   // получаем все данные в структуру и используем их
+//   // этот способ быстрее и "легче" вызова отдельных get-функций
+//   DateTime now = rtc.getTime();
+
+//   Serial.print(now.hour);
+//   Serial.print(":");
+//   Serial.print(now.minute);
+//   Serial.print(":");
+//   Serial.print(now.second);
+//   Serial.print(" ");
+//   Serial.print(now.day);
+//   Serial.print(" ");
+//   Serial.print(now.date);
+//   Serial.print("/");
+//   Serial.print(now.month);
+//   Serial.print("/");
+//   Serial.println(now.year);
+// }
+void loop()
+{
+   lcd.clear();
+//   delay(1000);
+    lcd.setCursor(0,0);
+  lcd.print(rtc.getTimeString());
+//   int val_utechka1=analogRead(capteur_A);
+
+//     int dolivSENS = digitalRead(doliv_sens);
+
+//  int waterSENS = digitalRead(waterSENS_PIN);
+//   int podachawater = digitalRead(Water_PIN);
+  
+//   bool polivpompa = digitalRead(POLIV_Pompa); 
+
+// bool dolivpompa = digitalRead(doliv_pompa);
+  
+  lcd.setCursor(0,1);
+  lcd.print(val_utechka1);
+  lcd.setCursor(0,2);
+  lcd.print(dolivSENS);
+  lcd.setCursor(0,3);
+  lcd.print(waterSENS);
+  // lcd.setCursor(0,4);
+  // // lcd.print(podachawater);
+  // lcd.setCursor(0,5);
+  // lcd.print(polivpompa);
+   if (textp.tick()){ 
+    tmr = millis();
+  Serial.print("Reserv sens"); 
+ Serial.println(waterSENS); // Выводим значение в мониторе порта
+  Serial.print("Reserv klapan");
+// Serial.println(podachawater); // Выводим значение в мониторе порта
+
+Serial.print("");
+
+
+
+  Serial.print("HyDro sens"); 
+  Serial.println(dolivSENS); // Выводим значение в мониторе порта
+ Serial.print("Hydro pompa doliv-");
+ Serial.println(dolivpompa); // Выводим значение в мониторе порта
+ Serial.print("Pompa Poliv"); 
+ Serial.println(polivpompa); 
+
+  if(digitalRead(capteur_D) == HIGH) 
+  {
+     digitalWrite(UTECHKA_PIN, LOW); 
+    
+    Serial.print("Утечки НЕТ"); 
+ 
+  }
+else
+  {
+    digitalWrite(UTECHKA_PIN, HIGH); 
+    Serial.print("УТЕЧКА ВОДЫ");
+   
+  };
+val_utechka=analogRead(capteur_A); 
+ Serial.print("____Значение датчика утечки:");
+ Serial.print(val_utechka); 
+ Serial.println("");
+     static uint32_t tmr;
+  if (millis() - tmr >= 500) {
+ tmr = millis();  };
+int now_time = millis(); // текущее время
+    if( now_time >= next_time ){ // если текущее время превысило намеченное время, то
+        next_time = now_time + timeout; // вычисляем время следующего переключения
+     };
+
+
+if (grelka == 1) {
+//Lcd. fillCircle(240, 39, 7, RED);
+}
+if (grelka == 0) {
+//Lcd. fillCircle(240, 39, 7, BLUE);
+};
+
+
+
+
+
+ // Устанавливаем текущее время
+  CurrentTime1 = millis();
+  // считываем сенсор
+  boolean CurrentState1 = waterSENS;
+  // если текущее состояние сенсора отличается считанного
+  if (CurrentState1 != SensorState1) {
+
+
+// если отсчет таймера смены состояния не начат, начинаем
+    if (SensorStartChange1 == 0) SensorStartChange1 = CurrentTime1;
+    // если новое состояние приняло свое значение за время большее чем время таймаута
+    if (CurrentTime1 - SensorStartChange1 > TIMEOUT1) {
+        // меняем состояние сенсора
+        SensorState1=!SensorState1;
+        // сбрасываем время начала смены состояния
+        SensorStartChange1 = 1;
+        // если текущее состояние сенсора 1, то включаем светодиод
+        if(SensorState1){
+          // Lcd.fillScreen(BLACK);
+         PCF.write(0, 1);      
+        // если текущее состояние сенсора 0, то выключаем светодиод
+        }else{
+         //  Lcd.fillScreen(BLACK);
+         PCF.write(0, 0);     
+        }
+    }
+  // смена состояния не состоялась, сбрасываем таймер
+  }else{
+    SensorStartChange1 = 0;
+  };
+if (waterSENS == 1)
+//
+  {
+    // Lcd.fillScreen(BLACK);
+      PCF.write(3, 0);  }
+    // если отсчет таймера смены состояния не начат, начинаем
+    if (SensorStartChange2 == 0) SensorStartChange2 = CurrentTime2;
+    // если новое состояние приняло свое значение за время большее чем время таймаута
+    if (CurrentTime2 - SensorStartChange2 > TIMEOUT2) {
+        // меняем состояние сенсора
+        SensorState2=!SensorState2;
+        // сбрасываем время начала смены состояния
+        SensorStartChange2 = 1;
+        // если текущее состояние сенсора 1, то включаем светодиод
+        if(SensorState2){
+        //    Lcd.fillScreen(BLACK);
+        PCF.write(3, 0);     
+        // если текущее состояние сенсора 0, то выключаем светодиод
+        }else{
+        //    Lcd.fillScreen(BLACK);
+        PCF.write(3, 1); 
+        }
+    }
+  // смена состояния не состоялась, сбрасываем таймер
+  
+//   pcf8575.digitalWrite(0, LOW);
+//   pcf8575.digitalWrite(1, LOW);
+//   pcf8575.digitalWrite(2, LOW);
+//   pcf8575.digitalWrite(3, LOW);
+//    pcf8575.digitalWrite(4, LOW);
+//   delay(1000);
+//   pcf8575.digitalWrite(0, HIGH);
+//   pcf8575.digitalWrite(1, HIGH);
+//   pcf8575.digitalWrite(2, HIGH);
+//   pcf8575.digitalWrite(3, HIGH);
+//    pcf8575.digitalWrite(4, HIGH);
+
+
+   }};
+
+
+
+// #include "PCF8575.h"
+
+// // adjust addresses if needed
+// PCF8575 PCF(0x20);  // add LEDs to lines      (used as output)
+
+
+// void setup()
+// {
+//   Serial.begin(115200);
+//   Serial.println(__FILE__);
+//   Serial.print("PCF8575_LIB_VERSION:\t");
+//   Serial.println(PCF8575_LIB_VERSION);
+
+//   PCF.begin();
+
+
+// }
+
+
+// void loop()
+// {
+  PCF.read(0);
+//   PCF.write(0, 1);   delay(150);
+//   PCF.write(1, 1);   delay(150);
+//   PCF.write(2, 1);   
+//   PCF.write(3, 1);   
+//   PCF.write(4, 1);  
+//   PCF.write(5, 1);   
+//   PCF.write(6, 1);   
+//   PCF.write(7, 1);   
+//    PCF.write(0, 0);   
+//    delay(150);
+//   PCF.write(1, 0);
+//   PCF.write(2, 0);   delay(150);
+//   PCF.write(3, 0);   delay(150);
+//   PCF.write(4, 0);   
+//   PCF.write(5, 0);   delay(150);
+//   PCF.write(6, 0);   
+//   PCF.write(7, 0);   delay(150);
+// }
+
+
+// // -- END OF FILE --

@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"dotnet.defaultSolution": "lib/PJON/examples/WINX86/Local/EthernetTCP/RemoteWorker/RemoteWorker.sln",
+		"files.associations": {
+			"random": "cpp"
+		}
+	}
+}

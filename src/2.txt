@@ -1,0 +1,2725 @@
+
+// // //FULL DEMO
+// // #pragma once
+
+// Scanning...
+// I2C device found at address 0x20 !
+// I2C device found at address 0x3F !
+// I2C device found at address 0x68 !
+// done
+// #include <arduino.h>
+//// WiFi
+#include <Arduino.h>
+ #include <Wire.h>
+
+
+
+
+#include <LittleFS.h>
+#include <UnixTime.h>
+#include <PairsFile.h>
+PairsFile conFile(&LittleFS, "/data2.dat", 3000);
+// PairsFile Date(&LittleFS, "/data.dat", 3000);
+#define GH_FS LittleFS
+#include <PubSubClient.h>
+//  #define GH_NO_MQTT
+#define GH_INCLUDE_PORTAL
+#define GH_FILE_PORTAL
+#include <GyverTimer.h> 
+#include <GyverHub.h>
+ #include <GSON.h>
+#include <Stamp.h>
+ #include <TimerMs.h>
+ #include <microDS3231.h>
+//  MicroDS3231 rtc;
+// uint32_t Stamp s();
+// Stamp s();
+  //  
+
+
+// DateTime now();
+// UnixTime stamp();
+// uint32_t Stamp();
+UnixTime d();
+UnixTime Stamp();
+
+uint32_t getUnix();
+UnixTime stamp(3); 
+
+#include <WIFI.h>
+#include <WiFiClientSecure.h>
+// UnixTime unix();
+uint32_t unix;
+// uint32_t stamp; 
+uint32_t Stamps;
+
+#define AP_SSID "TP-LINK"
+#define AP_PASS "214365Qq"
+#define WIFI_TIMEOUT_MS 20000
+#define WIFI_NETWORK "TP-LINK"
+#define WIFI_PASSWORD "214365Qq"
+// базовый пример работы с библиотекой, основные возможности. Загрузи и изучай код
+// WiFi
+const char *ssid = "TP-LINK"; // Enter your Wi-Fi name
+const char *password = "214365Qq";  // Enter Wi-Fi password
+
+// MQTT Broker
+const char *mqtt_broker = "m8.wqtt.ru";
+// const char *topic = "topic/esp32";
+// const char *TEMPR = "topic/TR";
+// const char *TEMPW = "topic/TW";
+
+const char *mqtt_username = "wootang";
+const char *mqtt_password = "398958";
+const int mqtt_port = 14396;
+
+
+
+// // отключаем встроенную реализацию MQTT (для esp)
+
+// // MQTT
+// const char* mqtt_server = "m8.wqtt.ru";
+// const int mqtt_port = 14396;
+// const char* mqtt_user = "wootang";
+// const char* mqtt_password = "398958";
+ String client_id = "esp32";
+// // SENSOR
+ const int sending_period = 5;
+const bool retain_flag = true;
+const char* Wtemp_topic = "Wtemp";
+const char* ventel_topic = "ventel";
+const char* Rtemp_topic = "Rtemp";
+const char* Rtemp2_topic = "Rtemp2";
+//  int pwm27;
+
+const char* pwm27_topic = "pwm27";
+#include <pwmWrite.h>
+const byte pwmv = 27;
+int brightness = 0;
+int step = 5;
+Pwm pwm = Pwm();
+
+const char* waterSENS_topic = "waterSENS";
+const char* dolivSENS_topic = "dolivSENS";
+const char* val_utechkaD_topic = "val_utechkaD";
+// const char *topic = "topic/esp32";
+// const char *TEMPR = "topic/TR";
+// const char *TEMPW = "topic/TW";
+// /////////////////////////////////////////////////////////
+
+
+//
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+
+
+
+
+// #include <U8g2lib.h>
+
+// // // #define SCL_PIN SCL  // SCL pin of OLED. Default: GP5 (I2CO SCL for RP2040)
+// // // #define SDA_PIN SDA  // SDA pin of OLED. Default: GP4 (I2CO SDA for RP2040)
+// #define u8g2_PIN_NONE 100
+
+// // //U8G2_ST7567_ENH_DG128064I_F_SW_I2C u8g2(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
+// U8G2_ST7567_ENH_DG128064I_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);  // this works with RP2040
+
+
+
+
+// // логин-пароль от роутера
+
+
+GyverHub hub;
+
+#include "ThingSpeak.h"
+
+#define CHANNEL_ID 1551807
+#define CHANNEL_API_KEY "EZVNSKEUD4RWXAAD"
+
+
+#define CHANNEL_ID2 1628917
+#define CHANNEL_API_KEY2 "R5VFO73Q37GESE3V"
+
+uint32_t rndColor() {
+    uint32_t colors[] = {
+        0xcb2839,
+        0xd55f30,
+        0xd69d27,
+        0x37A93C,
+        0x25b18f,
+        0x2ba1cd,
+        0x297bcd,
+        0x825ae7,
+        0xc8589a,
+    };
+    return colors[random(9)];
+};
+String rndText() {
+    String s;
+    uint8_t len = random(5, 12);
+    for (uint8_t i = 0; i < len; i++) {
+        s += (char)random('a', 'z');
+    };
+    return s;
+};
+gh::Align rndAlign() {
+    static uint8_t i;
+    if (++i >= 3) i = 0;
+    return (gh::Align)i;
+};
+const char* rndIcon() {
+    static uint8_t i;
+    if (++i >= 4) i = 0;
+    const char* icons[] = {
+        "?",
+        "f0ad",
+        "f5ce",
+        "",
+    };
+    return icons[i];
+};
+
+
+
+// WiFiClient client;
+// MQTTPubSubClient mqtt;
+
+ #include "PCF8575.h"
+
+ // Set i2c address
+ PCF8575 pcf1(0x20);
+ PCF8575 pcf2(0x22);
+
+ float Temperatura;
+
+   bool autos=1;
+
+String messager = "";
+String messagew = "";
+
+ float vent0=22.0;
+ float vent1=22.5;
+ float vent2=23.0;
+ float vent3=23.5;
+ float vent4=24.5;
+ float vent5=25.0;
+ float vent6=25.5;
+ float vent7=26.5;
+ float vent8=27.5;
+ float vent9=28.5;
+
+  float ventob0=85;
+ float ventob1=95;
+ float ventob2=105;
+ float ventob3=110;
+ float ventob4=125;
+ float ventob5=130;
+ float ventob6=135;
+ float ventob7=140;
+ float ventob8=145;
+float ventob9=150;
+
+
+float volt;
+float pwm27=120;
+float pwm100;
+
+
+ float ventel=0 ;
+
+   float ventday;
+  float ventdd;
+
+
+
+ float ventup = 11.00;
+  float ventdown = 23.00;
+
+ int timePoliv = 40000;
+ int timeDoliv = 180000;
+
+
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+// Define NTP Client to get time
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org");
+
+//Week Days
+String weekDays[7]={"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
+//Month names
+String months[12]={"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
+
+time_t epochTime;
+
+//  d.minute = 10;
+//   d.hour = 5;
+//   d.date = 5;
+//   d.month = 5;
+// d.year = 2022;  // изменили год
+
+//   d.seconds = 12;
+// Stamp gdate(2023, 3, 10);
+// Stamp gtime(12, 30, 0);
+
+const int vdnpin = 2;
+
+ const int capteur_D = 19;   //DIGITAL UTECHKA
+ const int capteur_A = 18;    //ANALOG UTECHKA
+
+int ventpin = 27;           // контакт ШИМ, к которому подключен светодиод
+
+//  const int UTECHKA_PIN = 5;   //PIN UTECHKA
+ int val_utechka;
+ int val_utechkaD;
+
+ // (период, мс), (0 не запущен / 1 запущен), (режим: 0 период / 1 таймер)
+ TimerMs tmr(5000, 1, 0);
+ // TimerMs dolivpause(3000, 1, 1);
+ TimerMs textp(15000, 1, 0);
+ TimerMs tmrWF(20000, 1, 0);
+ // TimerMs WATERPING(5000, 1, 0);
+  TimerMs tmrvent(25000, 1, 0);
+
+//  GTimer dolivpause(MS);  // можно сразу указать период (по умолч. в режиме интервала)
+//  GTimer polivtimer(MS);  // можно сразу указать период (по умолч. в режиме интервала)
+
+
+ // int value = 0;
+ unsigned long next_time; // время очередного переключения первого светодиода
+ int timeout = 2500; // половина периода мигания
+ //int led_state = 0; // начальное состояние светодиода - выключен
+
+
+ int DP=1;
+ // int grelka_PIN;
+ bool grelka;
+
+
+
+ bool obogrev;
+ bool obogrevt;
+
+
+ // Текущее состояние сенсора
+ bool SensorStateWS = HIGH;
+ // Время начала смены
+ unsigned long SensorStartChangeWS = 0;
+ // Защитный интервал между сменами состояния
+ unsigned long TIMEOUTWS = 1000;
+ // Текущее время
+ unsigned long CurrentTimeWS = 0;
+
+
+
+ // Текущее состояние сенсора
+ bool SensorStateDS = HIGH;
+ // Время начала смены
+ unsigned long SensorStartChangeDS = 0;
+ // Защитный интервал между сменами состояния
+ unsigned long TIMEOUTDS = 2000;
+ // Текущее время
+ unsigned long CurrentTimeDS = 0;
+
+ // Пример использования библиотеки GyverButton, все возможности в одном скетче.
+ // автоматический тик
+
+
+ #include "Button2.h"
+
+ // Button2 button;
+ byte pin = 13;
+ /////////////////////////////////////////////////////////////////
+
+ Button2 button;
+  #define BUTTON_PIN  13
+
+
+ #include <OneWire.h>
+ #include <DallasTemperature.h>
+
+ #define ONE_WIRE_BUS 0
+#define TEMPERATURE_PRECISION 12 // Lower resolution
+OneWire oneWire(ONE_WIRE_BUS);
+
+DallasTemperature sensors(&oneWire);
+
+ DeviceAddress outsideThermometer = { 0x28, 0x52, 0x37, 0x14, 0x64, 0x20, 0x01, 0x19 };  //28 D6 B5 3D 9 0 0 AE
+DeviceAddress  insideThermometer  = { 0x28, 0xFA, 0xED, 0x23, 0x64, 0x20, 0x01, 0xC9 };
+DeviceAddress  ROOMThermometer  = { 0x28, 0xD6, 0xB5, 0x3D, 0x9, 0x0, 0x0, 0xAE };
+// ROM = 28 52 37 14 64 20 1 19
+//   Chip = DS18B20
+//   Data = 1 61 1 4B 46 7F FF 7F 10 B4  CRC=B4
+//   Temperature = 22.06 Celsius, 71.71 Fahrenheit
+// ROM = 28 FA ED 23 64 20 1 C9
+//   Chip = DS18B20
+//   Data = 1 50 5 4B 46 7F FF 7F 10 FF  CRC=FF
+//   Temperature = 85.00 Celsius, 185.00 Fahrenheit
+// ROM = 28 D6 B5 3D 9 0 0 AE
+//   Chip = DS18B20
+//   Data = 1 57 1 4B 46 7F FF 9 10 C7  CRC=C7
+//   Temperature = 21.44 Celsius, 70.59 Fahrenheit
+
+
+
+   float Wtemp; // temperature in Celsius
+ int dolivSENS;
+ int waterSENS;
+ int podachawater;
+ int polivpompa;
+
+bool dolivSE;
+bool waterSE;
+
+ float poliv;
+
+
+  int dolivpompa;
+ float Rtemp; // temperature in Celsius
+
+float Rtemp2; // temperature in Celsius
+
+
+uint8_t tab=0;
+
+
+
+
+// int dat;
+// int tim;
+// // // отключаем встроенную реализацию MQTT (для esp)
+
+// // // MQTT
+// // const char* mqtt_server = "m8.wqtt.ru";
+// // const int mqtt_port = 14396;
+// // const char* mqtt_user = "wootang";
+// // const char* mqtt_password = "398958";
+
+// // // SENSOR
+//  const int sending_period = 5;
+// const bool retain_flag = false;
+// const char* Wtemp_topic = "esp/Wtemp";
+// const char* ventel_topic = "esp/ventel";
+// const char* Rtemp_topic = "esp/Rtemp";
+
+
+// const char *topic = "topic/esp32";
+// const char *TEMPR = "topic/TR";
+// const char *TEMPW = "topic/TW";
+// // /////////////////////////////////////////////////////////
+
+
+// WiFiClient espClient;
+// PubSubClient client(espClient);
+
+uint32_t tmr1;
+
+
+// bool relay_on = false;
+
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    String clientId = "ESP32-" + WiFi.macAddress();
+    if (client.connect(clientId.c_str(), mqtt_username, mqtt_password) ) {
+      Serial.println("connected");
+      
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
+    }
+  }
+}
+
+// // обновить панель управления в приложении
+// void sendRefresh(gh::Client* client = nullptr)
+// {
+
+// }
+
+
+
+ void pressed(Button2& btn) {
+     Serial.println("pressed");
+    	// pcf8575.digitalWrite(P3, LOW);
+     poliv=1;
+ //  dolivpause.setTimeout(timeDoliv);       //  пауза долива и подогрева
+ //   polivtimer.setTimeout(timePoliv);
+
+ };
+ void released(Button2& btn) {
+     Serial.print("released: ");
+     Serial.println(btn.wasPressedFor());
+    
+           	// pcf8575.digitalWrite(P3, LOW);
+ //  dolivpause.setTimeout(timeDoliv);       //  пауза долива и подогрева
+ //   polivtimer.setTimeout(timePoliv);
+ };
+ void changed(Button2& btn) {
+     Serial.println("changed");
+ };
+ void click(Button2& btn) {
+     Serial.println("click\n");
+         poliv=1;
+        	// pcf8575.digitalWrite(P3, LOW);
+ //  dolivpause.setTimeout(timeDoliv);       //  пауза долива и подогрева
+ //   polivtimer.setTimeout(timePoliv);
+ };
+ void longClickDetected(Button2& btn) {
+     Serial.println("long click detected");
+     poliv=0;
+ };
+ void longClick(Button2& btn) {
+     Serial.println("long click\n");
+         poliv=0;
+    	// pcf8575.digitalWrite(P3, HIGH);
+ };
+ void doubleClick(Button2& btn) {
+     Serial.println("double click\n");
+         poliv=1;
+         // pcf8575.digitalWrite(P3, LOW);
+
+ //  dolivpause.setTimeout(timeDoliv);       //  пауза долива и подогрева
+ //   polivtimer.setTimeout(timePoliv);
+ };
+ void tripleClick(Button2& btn) {
+     Serial.println("triple click\n");
+     Serial.println(btn.getNumberOfClicks());
+         poliv=0;
+ };
+ void tap(Button2& btn) {
+     Serial.println("tap");
+     poliv=1;
+ };
+
+
+
+// void build_mqtt(gh::Builder& b) {
+//     static String s1, s2;
+//     if (b.Input_("mqinp", &s1).click()) {
+//         Serial.print("mqinp set to: ");
+//         Serial.println(b.build.value);
+//     }
+//     if (b.Dummy_("dummy", &s2).click()) {
+//         Serial.print("dummy set to: ");
+//         Serial.println(b.build.value);
+//     }
+//     if (b.Button().click()) hub.sendGetStr("dummy", String(random(100) / 10.0, 2));
+// }
+
+
+
+
+
+
+
+
+
+// обработчик кнопки (см. ниже)
+void btn_cb() {
+    Serial.println("AUTO ON");
+        if (Rtemp <= vent0 && Rtemp <= vent1 ) {
+ ventel=0;
+   };
+
+     if (Rtemp >= vent1 && Rtemp <= vent2 ) {
+   ventel=1;
+    };
+
+  if (Rtemp >= vent2 && Rtemp <= vent3) {
+ ventel=2;
+     
+   };
+
+  if (Rtemp >= vent3 && Rtemp <= vent4) {
+ ventel=3;
+        };
+
+
+    if (Rtemp >= vent4 && Rtemp <= vent5) {
+ 	ventel=4;
+   };
+
+
+    if (Rtemp >= vent5 && Rtemp <= vent6) {
+ 	ventel=5;
+    };
+
+    if (Rtemp >= vent6 && Rtemp <= vent7) {
+   	ventel=6;
+         };
+    
+     if (Rtemp >= vent7 && Rtemp <= vent8) {
+ 	ventel=7; 
+  };
+
+  if (Rtemp >= vent8 && Rtemp <= vent9) {
+ 	ventel=8;
+  };
+    if (Rtemp >= vent9) {
+ 	ventel=9;
+     };
+// hub.refresh();
+};
+
+
+
+
+
+// обработчик кнопки с информацией о билде (см. ниже)
+void btn_cb_b(gh::Build& b) {
+    Serial.print("click 5 from client ID: ");
+    Serial.println(b.client.id);
+    // b.refresh();
+};
+
+
+
+// билдер
+// void build(gh::Builder& b) {
+    // =================== КОНТЕЙНЕРЫ ===================
+void build(gh::Builder& b) {
+
+
+
+
+    if (b.beginRow()) {
+
+  b.Slider(&vent0).label(F("VENT0")).color(gh::Colors::Red).size(1).range(20, 26, 0.5);
+       b.endRow();   }
+        if (b.beginRow()) {
+   b.Slider(&vent1).label(F("VENT1")).color(gh::Colors::Red).size(1).range(22, 27, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+    b.Slider(&vent2).label(F("VENT2")).color(gh::Colors::Red).size(1).range(23, 28, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+     b.Slider(&vent3).label(F("VENT3")).color(gh::Colors::Red).size(1).range(23.5, 29, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+      b.Slider(&vent4).label(F("VENT4")).color(gh::Colors::Red).size(1).range(24, 30, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+       b.Slider(&vent5).label(F("VENT5")).color(gh::Colors::Red).size(1).range(24.5, 31, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+        b.Slider(&vent6).label(F("VENT6")).color(gh::Colors::Red).size(1).range(25, 32, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+         b.Slider(&vent7).label(F("VENT7")).color(gh::Colors::Red).size(1).range(25.5, 33, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+          b.Slider(&vent8).label(F("VENT8")).color(gh::Colors::Red).size(1).range(26, 34, 0.5);
+
+       b.endRow();
+    }
+if (b.beginRow()) {
+          b.Slider(&vent9).label(F("VENT9")).color(gh::Colors::Red).size(1).range(26.5, 34, 0.5);
+
+       b.endRow();
+    }
+    b.refresh();
+};
+// }
+
+void build_1(gh::Builder& b) {
+ if (b.beginRow()) {
+
+  b.Slider(&ventob0).label(F("ОБОРОТЫ-0")).color(gh::Colors::Blue).size(1).range(50, 125, 1);
+   b.endRow();   }
+        if (b.beginRow()) {
+   b.Slider(&ventob1).label(F("ОБОРОТЫ-1")).color(gh::Colors::Blue).size(1).range(80, 140, 1);
+    b.endRow();   }
+        if (b.beginRow()) {
+    b.Slider(&ventob2).label(F("ОБОРОТЫ-2")).color(gh::Colors::Blue).size(1).range(90, 160, 1);
+     b.endRow();   }
+        if (b.beginRow()) {
+     b.Slider(&ventob3).label(F("ОБОРОТЫ-3")).color(gh::Colors::Blue).size(1).range(100, 150, 1);
+      b.endRow();   }
+        if (b.beginRow()) {
+      b.Slider(&ventob4).label(F("ОБОРОТЫ-4")).color(gh::Colors::Blue).size(1).range(110, 180, 1);
+
+       b.endRow();   }
+        if (b.beginRow()) {
+       b.Slider(&ventob5).label(F("ОБОРОТЫ-5")).color(gh::Colors::Blue).size(1).range(120, 200, 1);
+        b.endRow();   }
+        if (b.beginRow()) {
+        b.Slider(&ventob6).label(F("ОБОРОТЫ-6")).color(gh::Colors::Blue).size(1).range(130, 220, 1);
+         b.endRow();   }
+        if (b.beginRow()) {
+         b.Slider(&ventob7).label(F("ОБОРОТЫ-7")).color(gh::Colors::Blue).size(1).range(140, 255, 1);
+          b.endRow();   }
+        if (b.beginRow()) {
+          b.Slider(&ventob8).label(F("ОБОРОТЫ-8")).color(gh::Colors::Blue).size(1).range(150, 255, 1);
+
+       b.endRow();
+    }
+ if (b.beginRow()) {
+          b.Slider(&ventob9).label(F("ОБОРОТЫ-9")).color(gh::Colors::Blue).size(1).range(160, 255, 1);
+
+       b.endRow();
+    }
+
+b.refresh();
+
+};
+
+//  if (b.beginRow()) {
+
+//   b.Slider(&ventel).label(F("СКОРОСТЬ")).color(gh::Colors::Green).size(1).range(0, 9, 1);
+//       b.endRow();} 
+
+
+
+
+void build_2(gh::Builder& b) {
+
+
+
+
+if (b.beginRow()) {
+
+ 
+  b.Slider(&Temperatura).label(F("Температура водонагревателя")).color(gh::Colors::Red).size(1).range(10, 27, 0.1, 1 );
+   
+  //  b.Label().label("Temperatura").size(2).valueFloat(Temperatura); 
+    b.endRow();};
+
+
+
+if (b.beginRow()) {
+
+ 
+  b.Label().label("Ускорение вытяжки с").size(2).value(ventup); 
+   b.Label().label("Замедление вытяжки с").size(2).value(ventdown); 
+    b.endRow();};
+
+
+
+if (b.beginRow()) {
+
+  b.Slider(&ventup).label(F("Ускорение вытяжки с")).color(gh::Colors::Yellow).size(1).range(0, 24, 0.1, 1 );
+   
+    b.endRow();
+    };
+
+
+    if (b.beginRow()) {
+
+  b.Slider(&ventdown).label(F("Замедление вытяжки с")).color(gh::Colors::Yellow).size(1).range(0, 24, 0.1, 1 );
+   
+    b.endRow();
+    };
+
+
+
+if (b.beginRow()) {
+
+  b.Slider(&ventday).label(F("Дневное ускорение")).color(gh::Colors::Red).size(1).range(0, 100, 1, 1 );
+   
+    b.endRow();
+    };
+
+
+   if (b.beginRow()) {
+    b.Label().label("Температура комната").size(2).value(Rtemp);   // с указанием стандартного значения
+
+    
+     b.Label().label("Температура воды").size(2).value(Wtemp);   // с указанием стандартного значения
+   
+
+b.Label().label("Температура комната2").size(2).value(Rtemp2);   // с указанием стандартного значения
+   
+
+  //  b.Label().label("Температура водонагревателя").size(2).valueFloat(Temperatura); 
+
+   b.endRow();
+   };
+
+
+ if (b.beginRow()) {
+
+
+     b.Slider(&ventel).label(F("Передача Вентиляции")).color(gh::Colors::Blue).size(1).range(0, 9, 1);
+
+
+    b.endRow();
+    };
+
+
+//  if (b.beginRow()) {
+//         b.Label_("PWM")).size(2).valueInt(pwm27);  // с указанием стандартного значения
+
+//       b.Label_(F("Volt")).size(2).valueInt(volt);  // с указанием стандартного значения
+
+//         b.endRow();
+//     }
+
+
+
+// (&vent1).label(F("VENT1"))
+
+ if (b.beginRow()) {
+        // b.Label.label("pwm27").valueInt(pwm27);;  // с указанием стандартного значения
+
+   b.Label().label("volt").size(2).value(volt);   // с указанием стандартного значения
+//  b.Label().label("ШИМ").size(2).valueFloat(pwm27);   // с указанием стандартного значения
+  // b.Input().label("pwm27").size(2).valueFloat(pwm27); 
+  b.Label().label("%").size(2).value(pwm100);  
+
+
+        b.endRow();
+    };
+
+
+if (b.beginRow()) {
+
+  b.Slider(&pwm27).label(F("ШИМ вентиляци")).color(gh::Colors::Red).size(1).range(80, 255, 1);
+   b.endRow();  
+    };
+
+
+
+ if (b.beginRow()) {
+        // b.Input(&poliv).size(2);
+   if (b.Switch(&autos).label("Режим АВТО").size(1).click()) {
+Serial.println("Режим АВТО");
+
+Serial.println(autos);
+
+
+   };
+        // СПОСОБ 4
+        // подключить функцию-обработчик (см. выше)
+        b.Button().label("Синхронизация").attach(btn_cb);
+        // внутри обработки действия переменная уже будет иметь новое значение:
+        if (b.Switch(&poliv).label("POLIV").size(1).click()) {
+            Serial.print("poliv: ");
+            Serial.println(poliv);
+        };
+
+        b.endRow();
+
+    };
+ if (b.beginRow()) {
+    b.Label().label("obogrev").size(2).value(obogrev);   // с указанием стандартного значения
+ if (b.Switch(&obogrev).label("obogrev").size(1).click()) {
+            Serial.print("obogrev: ");
+            Serial.println(obogrev);
+        };
+        b.endRow();
+
+    };
+// Temperatura
+//  if (b.beginRow()) {
+//         b.Input(&Wtemp).size(2);
+//        b.endRow();
+//     }
+//     // =================== ПАРАМЕТРЫ ВИДЖЕТА ===================
+
+    if (b.beginRow()) {
+        // параметры виджета можно задавать цепочкой. Например:
+        b.Button().label(F("my button")).color(gh::Colors::Red);
+
+        // также можно продолжить настраивать ПРЕДЫДУЩИЙ виджет, обратившись к widget:
+        b.Button();                        // кнопка без параметров
+        b.widget.label(F("button 2"));     // настраиваем кнопку выше
+        b.widget.color(gh::Colors::Blue);  // её же
+
+        b.endRow();
+    };
+
+    // =================== ДЕЙСТВИЯ ВИДЖЕТА ===================
+
+    // с активных виджетов можно получить сигнал о действии - клик или изменение значения
+    if (b.beginRow()) {
+        // // СПОСОБ 1
+        // // проверить условие click() - он вернёт true при действии
+        // // click() нужно вызывать ПОСЛЕДНИМ в цепочке!!!
+        // if (b.Button().click()) Serial.println("click 1");
+
+        // // СПОСОБ 2
+        // // подключить bool переменную - флаг
+        // bool flags=0;
+        // b.Button().attach(&flags);
+        // if (flags) Serial.println("click 2");
+
+        // // СПОСОБ 3
+        // // подключить gh::Flag переменную - флаг
+        // // данный флаг сам сбросится в false при проверке!
+        // gh::Flag gflag;
+        // b.Button().attach(&gflag);
+        // if (gflag) Serial.println("click 3");
+        // // здесь gflag уже false
+//    if (b.Switch(&autos).label("AUTOS").size(1).click()) {
+// Serial.println("AUTOS");
+
+// Serial.println(autos);
+
+
+//    }
+//         // СПОСОБ 4
+//         // подключить функцию-обработчик (см. выше)
+//         b.Button().attach(btn_cb);
+
+        // СПОСОБ 5
+        // подключить функцию-обработчик с инфо о билде (см. выше)
+        b.Button().attach(btn_cb_b);
+
+        // attach() может быть НЕ ПОСЛЕДНИМ в цепочке, также их может быть несколько:
+        // b.Button().attach(f1).attach(f2).label("kek");
+
+        b.endRow();
+    };
+
+    // =============== ПОДКЛЮЧЕНИЕ ПЕРЕМЕННОЙ ===============
+
+    // if (b.beginRow()) {
+    //     // библиотека позволяет подключить к активному виджету переменную для чтения и записи
+    //     // я создам статические переменные для ясности. Они могут быть глобальными и так далее
+    //     // таким образом изменения останутся при перезагрузке страницы
+    //     // static int sld;
+    //     static String inp;
+      
+
+    //     // для подключения нужно передать переменную по адресу
+    //     // библиотека сама определит тип переменной и будет брать из неё значение и записывать при действиях
+    //     // библиотека поддерживает все стандартные типы данных, а также некоторые свои (Pairs, Pos, Button, Log...)
+    //
+
+
+//  if (b.beginRow()) {
+//         b.Input(&Rtemp).size(2);
+
+//         // внутри обработки действия переменная уже будет иметь новое значение:
+//         if (b.Switch(&ventel).size(1).click()) {
+//             Serial.print("switch: ");
+//             Serial.println(ventel);
+//         }
+
+//         b.endRow();
+//     }
+
+
+    // ==================== ОБНОВЛЕНИЕ ====================
+
+    // библиотека позволяет обновлять значения на виджетах. Это можно делать
+    // - из основной программы (см. ниже)
+    // - из билдера - но только при действиях по виджетам!
+
+    // для отправки обновления нужно знать ИМЯ компонента. Его можно задать почти у всех виджетов
+    // к функции добавляется подчёркивание, всё остальное - как раньше
+
+    if (b.beginRow()) {
+        b.Label_(F("label")).size(2).value("default");  // с указанием стандартного значения
+
+        if (b.Button().size(1).click()) {
+            hub.update(F("label")).value(random(100, 500));
+        };
+
+        b.endRow();
+    };
+
+    // в самом низу сделаем заголовок, текст будем обновлять из loop() (см. ниже)
+    b.Title_(F("title"));
+
+    // =================== ИНФО О БИЛДЕ ===================
+
+    // можно получить информацию о билде и клиенте для своих целей
+    // поставь тут 1, чтобы включить вывод =)
+    if (1) {
+        // запрос информации о виджетах
+        if (b.build.isUI()) {
+            Serial.println("=== UI BUILD ===");
+        };
+
+        // действие с виджетом
+        if (b.build.isSet()) {
+            Serial.println("=== SET ===");
+            Serial.print("name: ");
+            Serial.println(b.build.name);
+            Serial.print("value: ");
+            Serial.println(b.build.value);
+        };
+
+        Serial.print("client from: ");
+        // Serial.println(gh::readConnection(b.client.connection()));
+          //  Serial.print(gh::readConnection(req.client.connection()));
+              // Serial.print(gh::readConnection(client.connected());
+        Serial.print("ID: ");
+        Serial.println(b.build.client.id);
+        Serial.println();
+    };
+     b.Hook_("Wtemp", &Wtemp);
+     b.Hook_("Rtemp2", &Rtemp2);
+       
+         b.Hook_("ventob8", &ventob8);
+           b.Hook_("ventob7", &ventob7);
+             b.Hook_("ventob6", &ventob6);
+               b.Hook_("ventob5", &ventob5);
+                 b.Hook_("ventob4", &ventob4);
+                   b.Hook_("ventob3", &ventob3);
+                     b.Hook_("ventob2", &ventob2);
+                       b.Hook_("ventob1", &ventob1);
+                         b.Hook_("ventob0", &ventob0);
+                           b.Hook_("ventob9", &ventob9);
+                //              b.Hook_("ventob", &ventob);
+                //                b.Hook_("ventob", &ventob);
+                //                  b.Hook_("ventob", &ventob);
+
+                b.refresh();
+
+};
+
+
+void btn_grelka() {
+grelka = 1;
+ 
+      //  pcf1.digitalWrite(P2, LOW);
+ if (Wtemp >= Temperatura){
+grelka = 0;
+ 
+      //  pcf1.digitalWrite(P2, HIGH);
+    };
+// b.refresh();
+
+};
+
+
+void build_3(gh::Builder& b) {
+    // СПОСОБ 4
+    if (b.beginRow()) {
+        // подключить функцию-обработчик (см. выше)
+         b.Label().label("grelka").size(2).value(grelka); 
+        // внутри обработки действия переменная уже будет иметь новое значение:
+        if (b.Switch(&grelka).label("grelka").size(1).click()) {
+            Serial.print("grelka: ");
+            Serial.println(grelka);
+        };
+
+        b.endRow();
+    };
+
+
+
+ if (b.beginRow()) {
+    b.Label().label("waterSENS").size(2).value(waterSENS);   // с указанием стандартного значения
+
+     b.Label().label("dolivSENS").size(2).value(dolivSENS);   // с указанием стандартного значения
+   
+  //  b.Label().label("Температура водонагревателя").size(2).valueFloat(Temperatura); 
+
+   b.endRow();};
+
+
+ if (b.beginRow()) {
+    b.Label().label("val_utechkaD").size(2).value(val_utechkaD);   // с указанием стандартного значения
+
+     b.Label().label("grelka").size(2).value(grelka);   // с указанием стандартного значения
+   
+  //  b.Label().label("Температура водонагревателя").size(2).valueFloat(Temperatura); 
+
+   b.endRow();};
+
+
+ if (b.beginRow()) {
+    b.Label().label("dolivpompa").size(2).value(dolivpompa);   // с указанием стандартного значения
+
+     b.Label().label("polivpompa").size(2).value(polivpompa);   // с указанием стандартного значения
+   
+  //  b.Label().label("Температура водонагревателя").size(2).valueFloat(Temperatura); 
+
+   b.endRow();};
+
+
+ if (b.beginRow()) {
+    b.Label().label("переменная долива").size(2).value(DP);   // с указанием стандартного значения
+
+    //  b.Label().label("polivpompa").size(2).valueFloat(polivpompa);   // с указанием стандартного значения
+   
+  //  b.Label().label("Температура водонагревателя").size(2).valueFloat(Temperatura); 
+
+   b.endRow();}
+  //  b.refresh();
+};
+
+void build_Menu(gh::Builder& b) {
+
+
+
+  if (b.beginRow()) {  
+//  Stamps = stamp;
+// stamp = Stamps;
+// b.DateTime(&unix);
+// b.DateTime(&d);
+Stamps = timeClient.getEpochTime();
+
+b.DateTime(&Stamps);
+
+ b.endRow();
+};
+
+  if (b.beginRow()) {
+    bool ref = false;
+
+    ref |= b.Tabs(&tab).text(F("1;2;3;4")).noLabel().size(4).click();
+    if (ref) b.refresh();
+    b.endRow();
+
+    switch (tab) {
+      // вкладки меню
+      case 0: build_2(b);              break;
+      case 1: build(b);      break;
+       case 2: build_1(b);       break;
+       case 3: build_3(b);           break;
+      // case 4: build_SettingsRoot(b);    break;
+      // меню, вызываемые по кнопкам
+      // case 10: build_ManualEQ(b);       break;
+      // case 11: build_SettingsEQ(b);     break;
+      // case 12: build_SettingsNight(b);  break;
+    };
+  };
+};
+
+
+void callback(char *topic, byte *payload, unsigned int length) {
+    Serial.print("Message arrived in topic: ");
+    Serial.println(topic);
+    Serial.print("Message:");
+    for (int i = 0; i < length; i++) {
+        Serial.print((char) payload[i]);
+    };
+    Serial.println();
+    Serial.println("-----------------------");
+};
+
+
+
+void sendData() {
+
+
+
+
+  client.publish(Wtemp_topic, String(Wtemp).c_str(), retain_flag);
+  client.publish(ventel_topic, String(ventel).c_str(), retain_flag);
+  client.publish(Rtemp_topic, String(Rtemp).c_str(), retain_flag);
+    client.publish(Rtemp2_topic, String(Rtemp2).c_str(), retain_flag);
+
+
+  client.publish(pwm27_topic, String(pwm27).c_str(), retain_flag);
+  client.publish(waterSENS_topic, String(waterSENS).c_str(), retain_flag);
+  client.publish(dolivSENS_topic, String(dolivSENS).c_str(), retain_flag);
+  client.publish(val_utechkaD_topic, String(val_utechkaD).c_str(), retain_flag);
+
+
+
+// //subscribe
+// // client.subscribe("topic");
+// // client.setCallback(callback);
+
+// client.subscribe("Rtemp");
+// client.setCallback(callback);
+
+// client.subscribe("Wtemp");
+// client.setCallback(callback);
+
+
+
+
+// client.subscribe("pwm27");
+// client.setCallback(callback);
+
+// client.subscribe("waterSENS");
+// client.setCallback(callback);
+
+// client.subscribe("dolivSENS");
+// client.setCallback(callback);
+// client.subscribe("val_utechkaD");
+// client.setCallback(callback);
+
+
+};
+
+
+void getDateTime(uint32_t t);   // конвертировать unix stamp дату и время (в переменные члены класса)
+    
+// установка даты и времени (удобнее чем писать переменные вурчную)
+void setDateTime(uint16_t nyear, uint8_t nmonth, uint8_t nday, uint8_t nhour, uint8_t nminute, uint8_t nsecond);
+
+
+
+
+void onunix(uint32_t stamp) {
+  //  Serial.println("stamp");
+  //   Serial.println(stamp);
+// stamp = Stamps;
+ Stamps = 10800 + stamp;
+//  uint32_t unix = stamp.getUnix();
+//    Serial.println("stamp2");
+//  Serial.println(Stamps);
+
+//    Serial.println("unix");
+//  Serial.println(unix);
+unix = Stamps;
+// d = Stamps;
+};
+
+void setup() { 
+   LittleFS.begin();
+  
+ Serial.begin(115200); 
+ 
+  WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.println("Connecting to WiFi..");
+    }
+    Serial.println("Connected to the Wi-Fi network");
+    //connecting to a mqtt broker
+    client.setServer(mqtt_broker, mqtt_port);
+    client.setCallback(callback);
+    while (!client.connected()) {
+        String client_id = "esp32";
+        client_id += String(WiFi.macAddress());
+        Serial.printf("The client %s connects to the public MQTT broker\n", client_id.c_str());
+       Serial.println(WiFi.localIP());
+  // stamp = Stamps;
+  //  Stamps = stamp;
+    //  };
+pinMode(vdnpin, OUTPUT);  // D10 как выход
+digitalWrite(vdnpin,  LOW); // высокий сигнал на D10
+
+      // uint32_t unix = stamp.getUnix();
+  //      Serial.println("unix");
+  // Serial.println(unix);
+
+     conFile.begin();  // прочитать из файла
+// data2.begin();
+//  data.begin();
+//  rtc.begin();
+  //  rtc.setTime(BUILD_SEC, BUILD_MIN, BUILD_HOUR, BUILD_DAY, BUILD_MONTH, BUILD_YEAR);
+
+  //  rtc.setTime(COMPILE_TIME); 
+
+// // stamp.setDateTime(2021, 1, 1, 0, 0, 0);
+//   // uint32_t unix = stamp.getUnix();
+//   unix = rtc.getUnix(3);
+//   uint32_t stamp = unix.getUnix();
+//   //  Serial.println("unixtime");
+//   // Serial.print(unix);
+//    Serial.println(stamp);
+//     // Serial.println(now);
+//   // stamp.getDateTime(1621497944);
+  // Serial.println(stamp.year);
+  // Serial.println(stamp.month);
+  // Serial.println(stamp.day);
+  // Serial.println(stamp.hour);
+  // Serial.println(stamp.minute);
+  // Serial.println(stamp.second);
+  // Serial.println(stamp.dayOfWeek);
+
+
+  
+  // // визуально громоздкий, но более "лёгкий" с точки зрения памяти способ установить время компиляции
+  // rtc.setTime(BUILD_SEC, BUILD_MIN, BUILD_HOUR, BUILD_DAY, BUILD_MONTH, BUILD_YEAR);
+    
+  // if (rtc.lostPower()) {            // выполнится при сбросе батарейки
+  //   Serial.println("lost power!");
+  //   // тут можно однократно установить время == времени компиляции
+  // } ;
+
+//  u8g2.setI2CAddress (0x3F * 2);  //(); 0x7E  0x3F  0x3F * 2
+//    u8g2.begin(); 
+//   u8g2.setContrast(120);
+//    u8g2.setFontMode(1);
+//         u8g2.clearBuffer(); // clear the internal memory
+//         // u8g2.setFont(u8x8_font_chroma48medium8_r);
+//         u8g2.setFont(u8g2_font_ncenB08_tr); 
+//       //  u8g2.InverseFont(1); 
+//   u8g2.drawStr(15, 10, "Wootang"); // write something to the internal memory
+//         u8g2.drawStr(30, 25, "with 128x64"); // write something to the internal memory
+//         u8g2.drawStr(20, 45, "ST7567S display"); // write something to the internal memory
+//         u8g2.drawStr(0, 60, "using Arduino u8g2lib"); // write something to the internal memory
+// u8g2.sendBuffer(); // transfer internal memory to the display
+// //  u8g2.clearBuffer(); // clear the internal memory 
+sensors.begin();
+  sensors.setResolution(insideThermometer, TEMPERATURE_PRECISION);
+  sensors.setResolution(outsideThermometer, TEMPERATURE_PRECISION);
+    sensors.setResolution(ROOMThermometer, TEMPERATURE_PRECISION);
+  //  sensors.begin();
+
+
+
+  // Serial.begin(115200);
+  //   Serial.print("Locating devices...");
+  //  Serial.print("Found ");
+  //  // Serial.print(sensors.getDeviceCount(), DEC);
+  //  Serial.println(" devices.");
+
+//     // start serial port
+
+//    Serial.println("Dallas Temperature IC Control Library Demo");
+
+//        if (client.connect(MQTT::Connect("arduinoClient2")
+// .set_auth(mqtt_user, mqtt_pass))) {
+// Serial.println("Connected to MQTT server");
+// client.set_callback(callback);
+// client.subscribe("test/led"); // подписывааемся по топик с данными для светодиода
+// } else {
+// Serial.println("Could not connect to MQTT server");
+// }
+ timeClient.begin();
+  // Set offset time in seconds to adjust for your timezone, for example:
+  // GMT +1 = 3600
+  // GMT +8 = 28800
+  // GMT -1 = -3600
+  // GMT 0 = 0
+  timeClient.setTimeOffset(10800);
+
+ if (Temperatura == 0) {
+Temperatura = 22.5;
+};
+
+
+// if (client.connected()){
+// client.loop();
+// // TempSend();
+// };
+
+    
+if (client.connected()){
+client.loop();
+// TempSend();
+}   
+       
+       
+      if (client.connect(client_id.c_str(), mqtt_username, mqtt_password)) {
+            Serial.println("Public EMQX MQTT broker connected");
+        } else {
+            Serial.print("failed with state ");
+            Serial.print(client.state());
+            delay(2000);
+        }
+    }
+    // Publish and subscribe
+//     client.publish(topic, "Hi, I'm ESP32 ^^");
+//     client.subscribe(topic);
+//  Serial.print(topic);
+
+
+//     // подключение к роутеру
+//     WiFi.mode(WIFI_STA);
+//     WiFi.begin(AP_SSID, AP_PASS);
+//     while (WiFi.status() != WL_CONNECTED) {
+//         delay(500);
+//         Serial.print(".");
+//     }
+//     Serial.println();
+//     Serial.println(WiFi.localIP());
+//  // запуск!
+ 
+//  mqtt.begin(client);
+// client.connect("m8.wqtt.ru", 14396);
+// mqtt.connect("arduino", "public", "public");
+
+    hub.begin();
+    // если нужен MQTT - подключаемся
+    // hub.mqtt.config("test.mosquitto.org", 1883);
+    // hub.mqtt.config("test.mosquitto.org", 1883, "login", "pass");
+// hub.mqtt.config("m8.wqtt.ru", 14396, "wootang", "398958");
+  // указать префикс сети, имя устройства и иконку
+    hub.config(F("TP-LINK"), F("testesp32"), F("?"));
+
+    // подключить билдер
+    hub.onBuild(build_Menu);
+
+   
+  hub.setVersion("v1.12");      // установить версию (отображается в info)
+  hub.setPIN(3989);            // установить пин-код
+  hub.sendGetAuto(true); 
+
+
+     button.begin(BUTTON_PIN);
+     // pinMode(BUTTON_PIN);
+   button.setLongClickTime(3000);
+   button.setDoubleClickTime(300);
+  button.setChangedHandler(changed);
+    button.setPressedHandler(pressed);
+   button.setReleasedHandler(released);
+
+   // button.setTapHandler(tap);
+   button.setClickHandler(click);
+   button.setLongClickDetectedHandler(longClickDetected);
+   button.setLongClickHandler(longClick);
+   button.setLongClickDetectedRetriggerable(false);
+  
+   button.setDoubleClickHandler(doubleClick);
+   button.setTripleClickHandler(tripleClick);
+
+
+ analogWrite(ventpin, 90); 
+  
+ pcf1.begin();
+  pcf2.begin();
+
+ 
+
+
+
+ // #define P00  	0
+ // 	#define P01  	1
+ // 	#define P02  	2
+ // 	#define P03  	3
+ // 	#define P04  	4
+ // 	#define P05  	5
+ // 	#define P06  	6
+ // 	#define P07  	7
+ // 	#define P10  	8
+ // 	#define P11  	9
+ // 	#define P12  	10
+ // 	#define P13  	11
+ // 	#define P14  	12
+ // 	#define P15  	13
+ // 	#define P16  	14
+ // 	#define P17  	15
+ 	pcf1.pinMode(P0, OUTPUT);
+   pcf1.pinMode(P1, OUTPUT);
+   pcf1.pinMode(P2, OUTPUT);
+   pcf1.pinMode(P3, OUTPUT);
+   pcf1.pinMode(P4, OUTPUT);
+   pcf1.pinMode(P5, OUTPUT);
+   pcf1.pinMode(P6, OUTPUT);
+   pcf1.pinMode(P7, OUTPUT);
+   pcf1.pinMode(P8, OUTPUT);
+   pcf1.pinMode(P9, OUTPUT);
+
+ pcf1.pinMode(P10, OUTPUT);
+ pcf1.pinMode(P11, OUTPUT);
+ pcf1.pinMode(P12, OUTPUT);
+ pcf1.pinMode(P15, OUTPUT);
+ pcf1.pinMode(P14, OUTPUT);
+ pcf1.pinMode(P13, OUTPUT);
+
+ pcf1.digitalWrite(P0, HIGH);
+
+
+ 	pcf1.digitalWrite(P1, HIGH);
+
+
+
+ 	pcf1.digitalWrite(P2, HIGH);
+
+ 	pcf1.digitalWrite(P3, HIGH);
+	
+ 	pcf1.digitalWrite(P4, HIGH);
+
+ 	pcf1.digitalWrite(P5, HIGH);
+
+ 	pcf1.digitalWrite(P6, HIGH);
+
+ 	pcf1.digitalWrite(P7, HIGH);
+
+ 	pcf1.digitalWrite(P8, HIGH);
+
+ 	pcf1.digitalWrite(P9, HIGH);
+
+
+   	pcf1.digitalWrite(P10, HIGH);
+
+   	pcf1.digitalWrite(P11, HIGH);
+
+ 	pcf1.digitalWrite(P12, HIGH);
+
+      	pcf1.digitalWrite(P13, HIGH);
+
+     	pcf1.digitalWrite(P14, HIGH);
+
+     	pcf1.digitalWrite(P15, LOW);
+
+
+
+ 	pcf2.pinMode(P0, INPUT);
+   pcf2.pinMode(P1, INPUT);
+   pcf2.pinMode(P2, INPUT);
+   pcf2.pinMode(P3, INPUT);
+   pcf2.pinMode(P4, INPUT);
+   pcf2.pinMode(P5, INPUT);
+   pcf2.pinMode(P6, INPUT);
+   pcf2.pinMode(P7, INPUT);
+   pcf2.pinMode(P8, INPUT);
+   pcf2.pinMode(P9, INPUT);
+
+ pcf2.pinMode(P10, INPUT);
+ pcf2.pinMode(P11, INPUT);
+ pcf2.pinMode(P12, INPUT);
+ pcf2.pinMode(P15, INPUT);
+ pcf2.pinMode(P14, INPUT);
+ pcf2.pinMode(P13, INPUT);
+
+
+
+//  pcf2.digitalWrite(P0, LOW);
+
+
+//  	pcf2.digitalWrite(P1, LOW);
+
+
+
+//  	pcf2.digitalWrite(P2, LOW);
+
+//  	pcf2.digitalWrite(P3, LOW);
+	
+//  	pcf2.digitalWrite(P4, LOW);
+
+//  	pcf2.digitalWrite(P5, LOW);
+
+//  	pcf2.digitalWrite(P6, LOW);
+
+//  	pcf2.digitalWrite(P7, LOW);
+
+//  	pcf2.digitalWrite(P8, LOW);
+
+//  	pcf2.digitalWrite(P9, LOW);
+
+
+//    	pcf2.digitalWrite(P10, LOW);
+
+//    	pcf2.digitalWrite(P11, LOW);
+
+//  	pcf2.digitalWrite(P12, LOW);
+
+//       	pcf2.digitalWrite(P13, LOW);
+
+//      	pcf2.digitalWrite(P14, LOW);
+
+//      	pcf2.digitalWrite(P15, LOW);
+
+
+    pinMode(ventpin, OUTPUT); // объявляем  вывод ШИМ как выход:
+
+ // tmrWF.setTimerMode();
+ tmrWF.setPeriodMode();
+ tmr.setPeriodMode();
+ // tmr2.setPeriodMode();
+ textp.setPeriodMode();
+
+ hub.onUnix(onunix);
+
+
+
+
+  // dolivSENS = LOW;
+
+  //  waterSENS = LOW;
+ 
+//  pinMode(35, INPUT); // СЕНСОР ДОЛИВА
+//  pinMode(32, INPUT);    // СЕНСОР ПОДАЧИ ВОДЫ (ВЕРХ)
+ pinMode(19, INPUT); //sens 1
+ pinMode(25, INPUT);
+
+ 
+  
+  // ======== УСТАНОВКА ВРЕМЕНИ ВРУЧНУЮ ========    
+  // установить время вручную можно двумя способами (подставить реальные числа)
+  //rtc.setTime(SEC, MIN, HOUR, DAY, MONTH, YEAR);
+  //rtc.setHMSDMY(HOUR, MIN, SEC, DAY, MONTH, YEAR);
+  
+  // также можно установить время через DateTime
+  
+  
+
+  
+  // rtc.setTime(now);  // загружаем в RTC
+
+      hub.onUnix([](uint32_t stamp) {
+    //   Serial.println("stamp");
+    //     Serial.println(stamp);
+
+
+    // Serial.println("stamp2");
+    //     Serial.println(Stamp);
+
+// Stamp = stamp+10800;
+//  Serial.println("now");
+        // Serial.println(DateTime);
+ uint32_t getUnix();  
+    });
+
+
+obogrevt=0;
+obogrev=0;
+  
+   ThingSpeak.begin(espClient);
+
+//  u8g2.clearBuffer();
+
+
+    
+
+    // Serial.print("data:");
+    // Serial.println(conFile["key"]);
+   
+  //   conFile["Wtemp"] = Wtemp;  // изменили
+  //   conFile["Rtemp"] = Rtemp;  // изменили
+
+
+  //   Serial.print("daty:");
+  //   Serial.println(conFile["Wtemp"]);
+  //  Serial.println(conFile["Rtemp"]);
+
+//  p["key0"] = "string literal";
+//     p[F("key1")] = F("F string");
+//     String s("String");
+//     p[String("key") + 2] = s;
+//     p["key3"] = sutil::AnyText((const __FlashStringHelper*)pstr);
+//     p["key4"] = true;
+//     p["key5"] = 12345;
+//     p["key6"] = 12345789ull;
+//     p["key7"] = 3.14;
+//     p["key8"] = sutil::AnyValue(3.141527, 6);
+
+
+
+//  // вывести в любой тип
+//     char buf[20];
+//     p["key2"].toStr(buf);
+//     String ss = p["key3"];
+//     bool b = p["key4"];
+//     int i = p["key5"];
+//     uint64_t u64 = p["key6"];
+//     float f = p["key7"];
+//     double d = p["key8"];
+
+//     Serial.println(buf);
+//     Serial.println(ss);
+//     Serial.println(b);
+//     Serial.println(i);
+//     // Serial.println(u64);
+//     Serial.println(f);
+//     Serial.println(d, 6);
+
+//     Serial.println("==========");
+
+//     // удаление
+//     p.remove("key0");
+//     p.remove(F("key1"));
+//     p.remove(String("key") + 2);
+//     p.removeN(0);  // 3
+//     p.removeN(0);  // 4
+//     p.removeN(0);  // 5
+//     p.removeN(p.amount() - 1);  // 8
+//     Serial.println(p);
+//   Serial.println(p);
+};
+
+
+void loop() {
+
+volt = 10000/255*pwm27/1000;
+
+
+pwm100 = pwm27/255*100;
+
+     if (!client.connected()) {
+    reconnect();
+  };
+  client.loop();    
+timeClient.update();
+
+  time_t epochTime = timeClient.getEpochTime();
+  // Serial.print("Epoch Time: ");
+  // Serial.println(epochTime);
+  
+  String formattedTime = timeClient.getFormattedTime();
+  // Serial.print("Formatted Time: ");
+  // Serial.println(formattedTime);  
+
+  int currentHour = timeClient.getHours();
+  // Serial.print("Hour: ");
+  // Serial.println(currentHour);  
+
+  int currentMinute = timeClient.getMinutes();
+  // Serial.print("Minutes: ");
+  // Serial.println(currentMinute); 
+   
+  int currentSecond = timeClient.getSeconds();
+  // Serial.print("Seconds: ");
+  // Serial.println(currentSecond);  
+
+  String weekDay = weekDays[timeClient.getDay()];
+  // Serial.print("Week Day: ");
+  // Serial.println(weekDay);    
+
+  //Get a time structure
+  struct tm *ptm = gmtime ((time_t *)&epochTime); 
+
+  int monthDay = ptm->tm_mday;
+  // Serial.print("Month day: ");
+  // Serial.println(monthDay);
+
+  int currentMonth = ptm->tm_mon+1;
+  // Serial.print("Month: ");
+  // Serial.println(currentMonth);
+
+  String currentMonthName = months[currentMonth-1];
+  // Serial.print("Month name: ");
+  // Serial.println(currentMonthName);
+
+  int currentYear = ptm->tm_year+1900;
+  // Serial.print("Year: ");
+  // Serial.println(currentYear);
+
+  //Print complete date:
+  String currentDate = String(currentYear) + "-" + String(currentMonth) + "-" + String(monthDay);
+  // Serial.print("Current date: ");
+  // Serial.println(currentDate);
+
+  // Serial.println("");
+//  Serial.println();
+ 
+ sensors.requestTemperatures();
+   float Wtempl=sensors.getTempC(insideThermometer);
+
+ 
+float Rtempl=sensors.getTempC(outsideThermometer);
+ 
+float Rtempl2=sensors.getTempC(ROOMThermometer);
+// Serial.println("vdnpin");
+// Serial.println(digitalRead(vdnpin));
+//   delay(5000);
+ // высокий сигнал на D10
+
+//      sensors.requestTemperatures();
+//    float Wtempl=sensors.getTempC(insideThermometer);
+
+//    sensors.requestTemperatures();
+// float Rtempl=sensors.getTempC(outsideThermometer);
+
+  
+  // добавить меню и 
+//  if (grelka == 1) {
+//        pcf8575.digitalWrite(P2, LOW);
+//     };
+//  data.tick();
+//  data2.tick();
+//  if (grelka == 0) {
+//        pcf8575.digitalWrite(P2, HIGH);
+//     };
+ conFile.tick();  // тикаем тут. Само обновится после таймаута
+
+ // Дата. Параметры: value(unix), color, disabled, attach, click + параметры виджета
+// Widget& Date(AnyPtr ptr);
+// Widget& Date_(AnyText name, AnyPtr ptr);
+
+// // Время. Параметры: value(unix), color, disabled, attach, click + параметры виджета
+// Widget& Time(AnyPtr ptr);
+// Widget& Time_(AnyText name, AnyPtr ptr);
+
+// // Дата и время. Параметры: value(unix), color, disabled, attach, click + параметры виджета
+// Widget& DateTime(AnyPtr ptr);
+// Widget& DateTime_(AnyText name, AnyPtr ptr);
+  // float venttime = now.hour;
+  //  if ( venttime >=ventup &&  venttime <=ventdown){
+  // if (ventday == 0){
+  //         ventday = 10;
+  // };
+  //  };
+   
+
+
+
+
+//  u8g2.clearBuffer(); // clear the internal memory
+//  u8g2.setDrawColor(0);
+// //  u8g2.setContrast(0);
+//         // u8g2.clearBuffer(); // clear the internal memory
+//         u8g2.setFont(u8x8_font_chroma48medium8_r);
+//         // u8g2.setFont(u8g2_font_ncenB08_tr);
+//  u8g2.setFontDirection(0);
+//             u8g2.setCursor(0, 0);
+// // u8g2.print( now.hour);
+// // u8g2.print(":");
+
+// // u8g2.setCursor(20, 0);
+// //    u8g2.print( now.minute);
+// // u8g2.print(":");
+// // u8g2.setCursor(40, 0);
+// //    u8g2.print( now.second);
+// // u8g2.print(":");
+//   // clear the internal memory
+// u8g2.sendBuffer();
+
+  hub.tick();
+
+    // =========== ОБНОВЛЕНИЯ ПО ТАЙМЕРУ ===========
+    // в библиотеке предусмотрен удобный класс асинхронного таймера
+    static gh::Timer tmr(5000);  // период 1 секунда
+
+    // каждую секунду будем обновлять заголовок
+    if (tmr) {
+        hub.update(F("title")).value(millis());
+    };
+
+
+
+   button.loop();
+
+
+ val_utechkaD = digitalRead(19);
+
+dolivSENS = pcf2.digitalRead(P0);
+waterSENS = pcf2.digitalRead(P1);   
+
+
+  podachawater =  pcf1.digitalRead(P3);
+       polivpompa = !pcf1.digitalRead(P1);
+    dolivpompa = pcf1.digitalRead(P0);
+
+// dolivSENS = dolivSE;
+// waterSENS = waterSE;
+  //    Serial.println("waterSENS");
+
+  // Serial.println(waterSENS);
+  // Serial.println("dolivSENS");
+  // Serial.println(dolivSENS);  
+ 
+ 
+ 
+  // int  dolivSENS = pcf2.digitalRead(P0);
+
+//  int  waterSENS = pcf2.digitalRead(P1);
+
+
+
+ conFile["Wtemp"] = Wtemp;  // изменили
+    conFile["Rtemp"] = Rtemp;  // изменили
+
+ conFile["Rtemp2"] = Rtemp2;  // изменили
+
+
+    conFile["ventday"] = ventday;  // изменили
+    conFile["volt"] = volt;  // изменили
+
+
+        conFile["Temperatura"] = Temperatura;  // изменили
+    conFile["ventel"] = ventel;  // изменили
+
+//  conFile["Stamp"] = stamp;  // изменили
+
+  //   Serial.print("Wtemp:");
+  //   Serial.println(conFile["Wtemp"]);
+
+  //    Serial.print("Rtemp:");
+  //  Serial.println(conFile["Rtemp"]);
+
+  //   Serial.print("ventday:");
+  //   Serial.println(conFile["ventday"]);
+
+  //    Serial.print("volt:");
+  //  Serial.println(conFile["volt"]);
+
+  //      Serial.print("Temperatura:");
+  //   Serial.println(conFile["Temperatura"]);
+
+  //    Serial.print("ventel:");
+  //  Serial.println(conFile["ventel"]);
+
+ 
+
+// Serial.println(s.getUnix());
+// Serial.println(s.toString());
+// Serial.println(now.getUnix());
+// Serial.println(now.toString());
+
+// DateTime now = rtc.getTime();
+
+  //  Datime d = rtc.getTime();
+//  Datime d = s.get();
+  // s.set(d);    // обновили Stamp
+
+//  Serial.print("s.getUnix()");
+
+
+// Serial.println(s.getUnix());
+
+// Serial.print("s.toString()");
+// Serial.println(s.toString());
+
+//  hub.onUnix([](uint32_t stamp) {
+//       Serial.println("stamp");
+//         Serial.println(stamp);
+
+
+//     Serial.println("stamp2");
+//         Serial.println(Stamp);
+
+// // Stamp = stamp+10800;
+// //  Serial.println("now");
+//         // Serial.println(DateTime);
+//  uint32_t getUnix();  
+//     });
+
+  // now.hour;
+  // now.date;
+  // now.month;
+  // now.year;
+//  d.minute = now.minute;
+//   d.hour = now.hour;
+//   d.day = now.day;
+//   d.month = now.month;
+// d.year = now.year;  // изменили год
+
+//   d.second = now.second;
+
+      
+    // Serial.println(s.toString());
+// DateTime now =  timeClient.update();
+// ;
+// DaTime d = 
+
+// Datime d = rtc.getTime();
+// Datime
+//  d = now;
+// Serial.println(d.year);
+// Serial.println(d.month);
+// Serial.println(d.day);
+// Serial.println(d.minute);
+// Serial.println(Stamps);
+
+
+//  u8g2.clearBuffer(); // clear the internal memory
+//  u8g2.setDrawColor(0);
+// //  u8g2.setContrast(0);
+//         // u8g2.clearBuffer(); // clear the internal memory
+//         u8g2.setFont(u8x8_font_chroma48medium8_r);
+//         // u8g2.setFont(u8g2_font_ncenB08_tr);
+//  u8g2.setFontDirection(0);
+//             u8g2.setCursor(0, 0);
+// u8g2.print( now.hour);
+// u8g2.print(":");
+
+// u8g2.setCursor(20, 0);
+//    u8g2.print( now.minute);
+// u8g2.print(":");
+// u8g2.setCursor(40, 0);
+//    u8g2.print( now.second);
+// // u8g2.print(":");
+//   // clear the internal memory
+// u8g2.sendBuffer();
+
+
+
+
+
+
+
+
+ // Устанавливаем текущее время
+   CurrentTimeWS = millis();
+   // считываем сенсор
+   boolean CurrentStateWS = waterSENS;
+   // если текущее состояние сенсора отличается считанного
+   if (CurrentStateWS != SensorStateWS) {
+     // если отсчет таймера смены состояния не начат, начинаем
+     if (SensorStartChangeWS == 0) SensorStartChangeWS = CurrentTimeWS;
+     // если новое состояние приняло свое значение за время большее чем время таймаута
+     if (CurrentTimeWS - SensorStartChangeWS > TIMEOUTWS) {
+         // меняем состояние сенсора
+         SensorStateWS=!SensorStateWS;
+         // сбрасываем время начала смены состояния
+         SensorStartChangeWS = 0;
+         // если текущее состояние сенсора 1, то включаем светодиод
+         if(SensorStateWS){
+           	pcf1.digitalWrite(P3, HIGH);
+         // если текущее состояние сенсора 0, то выключаем светодиод
+         }else{
+          pcf1.digitalWrite(P3, LOW);
+         }
+     }
+   // смена состояния не состоялась, сбрасываем таймер
+   }else{
+     SensorStartChangeWS = 0;
+   };
+
+
+ // Устанавливаем текущее время
+   CurrentTimeDS = millis();
+   // считываем сенсор
+   boolean CurrentStateDS = dolivSENS;
+   // если текущее состояние сенсора отличается считанного
+   if (CurrentStateDS != SensorStateDS) {
+     // если отсчет таймера смены состояния не начат, начинаем
+     if (SensorStartChangeDS == 0) SensorStartChangeDS = CurrentTimeDS;
+     // если новое состояние приняло свое значение за время большее чем время таймаута
+     if (CurrentTimeDS - SensorStartChangeDS > TIMEOUTDS) {
+         // меняем состояние сенсора
+         SensorStateDS=!SensorStateDS;
+         // сбрасываем время начала смены состояния
+         SensorStartChangeDS = 0;
+         // если текущее состояние сенсора 1, то включаем светодиод
+         if(SensorStateDS){
+           	pcf1.digitalWrite(P0, HIGH);
+         // если текущее состояние сенсора 0, то выключаем светодиод
+         }else{
+          pcf1.digitalWrite(P0, LOW);
+         }
+     }
+   // смена состояния не состоялась, сбрасываем таймер
+   }else{
+     SensorStartChangeDS = 0;
+   };
+
+
+
+ if (poliv==1) {
+     // Serial.println("poliv on");
+    pcf1.digitalWrite(P1, LOW);
+   };
+
+ if (poliv==0) {
+     // Serial.println("poliv oFF");
+    pcf1.digitalWrite(P1, HIGH);
+   };
+
+
+ 
+
+
+
+  if  (Wtempl >=10 && Wtempl <=50) {
+ Wtemp = Wtempl;};
+
+ if  (Rtempl >=10 && Rtempl <=50) {
+ Rtemp = Rtempl;};
+
+ if  (Rtempl2 >=10 && Rtempl <=50) {
+ Rtemp2 = Rtempl2;};
+
+
+// Serial.println(Wtemp);
+// Serial.println(Rtemp);
+// Serial.println(Rtemp2);
+
+
+
+
+
+
+ if (tmr.tick()){
+ 
+  
+  digitalWrite(vdnpin,  HIGH);
+ 
+ float grelkatime = currentHour;
+  // if (grelkatime >=10.00 && grelkatime <=21.00){
+     if (Wtemp < Temperatura && Wtemp >= 11  ) {
+obogrevt=1;
+  }
+   else  {
+   	obogrevt=0;
+  };
+      if (obogrev==1 && obogrevt==1) { 
+   	pcf1.digitalWrite(P2, LOW);
+    //  grelka = 1;    && obogrev==1
+     //  Serial.println(grelkatime);
+ 
+     }
+     else  {
+   	pcf1.digitalWrite(P2, HIGH);
+    //  grelka = 0;
+
+  //  }
+  };
+
+
+ 
+
+
+
+ if (autos == 1) {
+
+    if (Rtemp <= vent0 && Rtemp <= vent1 ) {
+ ventel=0;
+   
+   };
+
+     if (Rtemp >= vent1 && Rtemp <= vent2 ) {
+   ventel=1;
+   
+   };
+
+  if (Rtemp >= vent2 && Rtemp <= vent3) {
+ ventel=2;;
+     
+   };
+
+  if (Rtemp >= vent3 && Rtemp <= vent4) {
+ ventel=3;
+    
+   };
+
+
+    if (Rtemp >= vent4 && Rtemp <= vent5) {
+ 	ventel=4;
+    
+   };
+
+
+    if (Rtemp >= vent5 && Rtemp <= vent6) {
+ 	ventel=5;
+ 
+   };
+
+    if (Rtemp >= vent6 && Rtemp <= vent7) {
+   	ventel=6;
+    
+    };
+    
+     if (Rtemp >= vent7 && Rtemp <= vent8) {
+ 	ventel=7;
+      
+     };
+
+
+  if (Rtemp >= vent8 && Rtemp <= vent9) {
+ 	ventel=8;
+    
+   };
+    if (Rtemp >= vent9) {
+ 	ventel=9;
+      
+     };
+
+
+
+ };
+  
+ 
+// u8g2.setContrast(120);
+//         u8g2.clearBuffer(); // clear the internal memory
+//         u8g2.setFont(u8g2_font_ncenB08_tr);
+// //  String se=strcmp(waterSENS);
+
+// //   // Serial.println(waterSENS.atoi(key));    // 123
+//  u8g2.setCursor(10,0);
+// u8g2.print("WS-");
+
+//  u8g2.setCursor(10,10);
+// u8g2.print(waterSENS);
+// u8g2.sendBuffer();
+//    u8g2.print( now.minute);
+// u8g2.print(":");
+//    u8g2.print( now.second);
+// u8g2.print(":");
+  // clear the internal memory
+
+
+
+//    lcd.cursor(0 ,2);
+//    lcd.display("WS-");
+//    lcd.cursor(3, 2);
+//    lcd.display(String&se);
+
+  //    lcd.cursor(0, 3);
+  //  lcd.display("DS-");
+  //  lcd.cursor(3, 3);
+  //  lcd.display(dolivSENS);
+
+  // lcd.cursor(10, 0);
+  //  lcd.display("W-");
+  //  lcd.cursor(12, 0);
+  //  lcd.display(Wtemp, 2);
+
+  //  lcd.cursor(0,1);
+  //  lcd.display("220-");
+  //  lcd.cursor(4,1);
+  //  lcd.display(val_utechkaD);
+
+  // lcd.cursor(10, 1);
+  //  lcd.display("R-");
+  //  lcd.cursor(12, 1);
+  //  lcd.display(Rtemp, 2);
+
+
+
+  // lcd.cursor(12, 2);
+  //  lcd.display("T-");
+  //  lcd.cursor(15, 2);
+  //  lcd.display(Temperatura, 2);
+
+
+
+//   int pwm27;
+   
+ if (tmrWF.tick()){
+
+
+   Serial.println("SENDED");
+
+  ThingSpeak.setField(1, Wtemp);
+   ThingSpeak.setField(2, Rtemp);
+    ThingSpeak.setField(3, waterSENS);
+   ThingSpeak.setField(4, Rtemp2);
+
+    ThingSpeak.setField(5, grelka);
+   ThingSpeak.setField(6, podachawater);
+    ThingSpeak.setField(7, dolivpompa);
+  ThingSpeak.setField(8, polivpompa);
+
+   ThingSpeak.writeFields(CHANNEL_ID, CHANNEL_API_KEY);
+
+
+  ThingSpeak.setField(1, ventel);
+   ThingSpeak.setField(2, digitalRead(19));
+    ThingSpeak.setField(3, waterSENS);
+   ThingSpeak.setField(4, dolivSENS);
+
+    ThingSpeak.setField(5, grelka);
+   ThingSpeak.setField(6, podachawater);
+    ThingSpeak.setField(7, dolivpompa);
+   ThingSpeak.setField(8, ventel);
+ //  ThingSpeak.setField(9, ventel);
+   ThingSpeak.writeFields(CHANNEL_ID2, CHANNEL_API_KEY2);
+
+
+ };
+
+
+
+
+
+  if (textp.tick()){
+
+
+  
+
+
+  if  (Wtemp >=10) {
+     Serial.print("Sensor W(*C): ");
+   Serial.print(Wtemp, 3);
+ 
+   };
+   Serial.println();
+
+  if  (Rtemp >=10) {
+     Serial.print("Sensor R(*C): ");
+   Serial.print(Rtemp, 3);
+   };
+ 
+ if  (Rtemp2 >=10) {
+     Serial.print("Sensor W(*C): ");
+   Serial.print(Rtemp2, 3);
+ 
+   };
+   Serial.println();
+
+
+Serial.println("ШИМ vent-");
+Serial.print(pwm27);
+
+
+
+ if (ventel==0) {
+
+     Serial.println("VENT-0");
+  //        lcd.cursor(10, 3);
+  //  lcd.display("V-0");
+  // (char(223));
+   };
+
+     if (ventel==1) {
+
+      Serial.println("VENT-1");
+  //       lcd.cursor(10, 3);
+  //  lcd.display("V-1");
+
+   };
+
+  if (ventel==2) {
+ 
+         Serial.println("VENT-2");
+  //            lcd.cursor(10, 3);
+  //  lcd.display("V-2");
+            
+
+   };
+
+  if (ventel==3) {
+ 
+         Serial.println("VENT-3");
+        
+  //  lcd.cursor(10, 3);
+  //  lcd.display("V-3");
+ 
+
+ 
+   };
+
+
+    if (ventel==4) {
+ 	
+         Serial.println("VENT-4");
+        
+  //    lcd.cursor(10, 3);
+  //  lcd.display("V-4");
+ 
+
+ 
+   };
+
+
+    if (ventel==5) {
+
+         Serial.println("VENT-5");
+        
+  //   lcd.cursor(10, 3);
+  //  lcd.display("V-5");
+ 
+
+ 
+   };
+
+
+
+    if (ventel==6) {
+  
+         Serial.println("VENT-6");
+  //             lcd.cursor(10, 3);
+  //  lcd.display("V-6");
+
+    };
+    
+
+
+
+
+     if (ventel==7) {
+ 	
+         Serial.println("VENT-7");
+        
+  //      lcd.cursor(10, 3);
+  //  lcd.display("V-7");
+     };
+
+
+  if (ventel==8) {
+ 
+         Serial.println("VENT-8");
+        
+  //      lcd.cursor(10, 3);
+  //  lcd.display("V-8");
+
+   };
+    if (ventel==9) {
+ 
+         Serial.println("VENT-9");
+        
+  //      lcd.cursor(10, 3);
+  //  lcd.display("V-9");
+     };
+
+
+
+//  u8g2.setContrast(255);
+//         u8g2.clearBuffer(); // clear the internal memory
+//         u8g2.setFont(u8g2_font_ncenB08_tr);
+// //  String se=strcmp(waterSENS);
+
+// //   // Serial.println(waterSENS.atoi(key));    // 123
+//  u8g2.setCursor(20,20);
+// u8g2.print("WS-");
+
+//  u8g2.setCursor(20,40);
+// u8g2.print(waterSENS);
+// u8g2.sendBuffer();
+//    u8g2.print( now.minute);
+// u8g2.print(":");
+//    u8g2.print( now.second);
+// u8g2.print(":");
+//   // clear the internal memory
+
+
+
+// //    lcd.cursor(0 ,2);
+// //    lcd.display("WS-");
+// //    lcd.cursor(3, 2);
+// //    lcd.display(String&se);
+
+//   //    lcd.cursor(0, 3);
+//   //  lcd.display("DS-");
+//   //  lcd.cursor(3, 3);
+//   //  lcd.display(dolivSENS);
+
+//   // lcd.cursor(10, 0);
+//   //  lcd.display("W-");
+//   //  lcd.cursor(12, 0);
+//   //  lcd.display(Wtemp, 2);
+
+//   //  lcd.cursor(0,1);
+//   //  lcd.display("220-");
+//   //  lcd.cursor(4,1);
+//   //  lcd.display(val_utechkaD);
+
+//   // lcd.cursor(10, 1);
+//   //  lcd.display("R-");
+//   //  lcd.cursor(12, 1);
+//   //  lcd.display(Rtemp, 2);
+
+
+
+//   // lcd.cursor(12, 2);
+//   //  lcd.display("T-");
+//   //  lcd.cursor(15, 2);
+//   //  lcd.display(Temperatura, 2);
+
+
+
+   
+
+  Serial.print("Кипятильник-");
+  if  (pcf1.digitalRead(P3) == 1) {
+     Serial.println("ВКЛ ");
+  // pcf1.digitalWrite(P2, LOW);
+   }
+     else  {
+      //  Serial.println("ВЫКЛ ");
+   };
+
+
+ Serial.print("СЕНСОР НИЖНИЙ УРОВНЯ ВОДЫ--");
+  if  (dolivSENS == 1) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+
+
+
+ Serial.print("СЕНСОР ВЕРХНИЙ УРОВНЯ ВОДЫ---");
+  if  (waterSENS == 1) {
+     Serial.println(" ВКЛ ");
+  
+   };
+    if  (waterSENS == 0) {
+       Serial.println(" ВЫКЛ ");
+   };
+
+
+ Serial.print("Помпа на долив--");
+  if  (dolivpompa ==0) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+ Serial.print("Помпа на Полив--");
+  if  (polivpompa ==0) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+ Serial.print("Подача воды с фильтра--");
+  if  (podachawater ==0) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+
+
+
+ Serial.print("переменная долива--");
+  if  (DP >=0) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+ if(digitalRead(19) == 0)
+   {
+  	pcf1.digitalWrite(P4, LOW);
+     Serial.println("УТЕЧКА ВОДЫ/220 ОБЕСТОЧЕНО");
+     Serial.println(" ");
+   };
+
+
+ if(digitalRead(19) == 1)
+   {
+   	pcf1.digitalWrite(P4, HIGH);
+     Serial.println("УТЕЧКИ ВОДЫ НЕТ");
+     Serial.println(" ");
+   };
+
+  
+
+
+
+//    float venttime = now.hour;
+//    if ( venttime >=ventup &&  venttime <=ventdown){
+
+
+
+//   if (ventday == 0){
+//           ventday = 10;
+//   };
+//   //  };
+
+//  };
+
+ stamp.getDateTime(Stamps);
+//  Serial.println(stamp.year);
+//   Serial.println(stamp.month);
+//   Serial.println(stamp.day);
+//   Serial.println(stamp.hour);
+//   Serial.println(stamp.minute);
+//   Serial.println(stamp.second);
+  float venttime = currentHour;
+   if ( venttime >=ventup &&  venttime <=ventdown){
+        //  ventday = 20;
+        // if (ventday == 0){
+        //   ventday = 10;
+        // ventday = 40;
+        ventdd = 1;
+   }; 
+
+  // float venttime = stamp.hour;
+if (venttime <= ventup &&  venttime >= ventdown){
+
+ventdd = 0;
+};
+
+
+
+
+
+
+
+
+
+   if (tmrvent.tick()){
+ if (  ventdd == 1){
+
+        if (ventel == 0) {
+   pwm27 = ventob0 + ventday;
+//  analogWrite(ventpin, pwm27); 
+  pwm.write(pwmv, pwm27);
+   };
+
+   if (ventel == 1) {
+     pwm27 = ventob1 + ventday;
+  // analogWrite(ventpin, pwm27); 
+  pwm.write(pwmv, pwm27);
+ };
+
+     if (ventel == 2) {
+         pwm27 = ventob2 + ventday;
+  //  analogWrite(ventpin, pwm27); 
+  pwm.write(pwmv, pwm27);
+ };
+       if (ventel == 3) {
+         pwm27 = ventob3 + ventday;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+
+         if (ventel == 4) {
+             pwm27 = ventob4 + ventday;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+           if (ventel == 5) {
+             pwm27 = ventob5 + ventday;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+             if (ventel == 6) {
+                 pwm27 = ventob6 + ventday;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+
+             if (ventel == 7) {
+                 pwm27 = ventob7 + ventday;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+
+  if (ventel == 8) {
+     pwm27 = ventob8 + ventday;
+  // analogWrite(ventpin, pwm27); 
+ pwm.write(pwmv, pwm27);
+ };
+
+  if (ventel == 9) {
+     pwm27 = ventob9 + ventday;
+  // analogWrite(ventpin, pwm27); 
+ pwm.write(pwmv, pwm27);
+ };
+ 
+         Serial.println("ventday-");
+     Serial.print(ventday);
+     Serial.println("");
+    };   
+      
+//   else  { 
+//     // ventday = 0;
+//    	Serial.println("ventday-");
+//      Serial.print(ventday);
+    //  };
+//       Serial.println("");
+// ventday = 0;
+//  };
+
+
+
+ if (  ventdd == 0){
+   
+        //  ventday = 20;
+        // if (ventday == 0){
+        //   ventday = 10;
+       if (ventel == 0) {
+   pwm27 = ventob0;
+//  analogWrite(ventpin, pwm27); 
+  pwm.write(pwmv, pwm27);
+   };
+
+   if (ventel == 1) {
+     pwm27 = ventob1;
+  // analogWrite(ventpin, pwm27); 
+  pwm.write(pwmv, pwm27);
+ };
+
+     if (ventel == 2) {
+         pwm27 = ventob2;
+  //  analogWrite(ventpin, pwm27); 
+  pwm.write(pwmv, pwm27);
+ };
+       if (ventel == 3) {
+         pwm27 = ventob3;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+
+         if (ventel == 4) {
+             pwm27 = ventob4;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+           if (ventel == 5) {
+             pwm27 = ventob5;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+             if (ventel == 6) {
+                 pwm27 = ventob6;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+
+             if (ventel == 7) {
+                 pwm27 = ventob7;
+  // analogWrite(ventpin, pwm27); 
+   pwm.write(pwmv, pwm27);
+ };
+
+  if (ventel == 8) {
+     pwm27 = ventob8;
+  // analogWrite(ventpin, pwm27); 
+ pwm.write(pwmv, pwm27);
+ };
+
+  if (ventel == 9) {
+     pwm27 = ventob9;
+  // analogWrite(ventpin, pwm27); 
+ pwm.write(pwmv, pwm27);
+ };
+        
+ 
+      
+  
+
+// Serial.println(stamp.toString());
+// uint32_t unix = stamp.getUnix();
+//   unix = rtc.getUnix(3);
+   Serial.println("ventdd-");
+     Serial.print(ventdd);
+     Serial.println("");
+// stamp.hour
+//    Serial.println("stamp.hour-");
+//      Serial.print(Stamps);
+//      Serial.println("");
+//       Serial.println("stamp.minute-");
+//     //  Serial.println(Stamps.minute);
+//  Serial.println(unix.toString());
+
+
+// 
+
+
+// Serial.print("Wtemp:");
+//     Serial.println(conFile["Wtemp"]);
+
+//      Serial.print("Rtemp:");
+//    Serial.println(conFile["Rtemp"]);
+
+//     Serial.print("ventday:");
+//     Serial.println(conFile["ventday"]);
+
+//      Serial.print("volt:");
+//    Serial.println(conFile["volt"]);
+
+//        Serial.print("Temperatura:");
+//     Serial.println(conFile["Temperatura"]);
+
+//      Serial.print("ventel:");
+//    Serial.println(conFile["ventel"]);
+
+
+
+  if (ventel != ventel) {
+   Serial.println("Vent-");
+Serial.print(ventel);
+
+
+ Serial.println("");
+//  };
+ };
+ };
+
+
+  if (!client.connected()) {
+    reconnect();
+  };
+  client.loop();
+
+  if (millis() - tmr1 >= (sending_period * 5000)) {
+    tmr1 = millis();
+    sendData();
+  }
+ 
+//  u8g2.clearBuffer();
+// u8g2.refreshDisplay();		// only required for SSD1606/7 
+};
+// };
+};
+};
+  }

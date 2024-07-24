@@ -1,0 +1,1698 @@
+
+// FULL DEMO
+
+// WiFi
+#include <Arduino.h>
+
+ #include <TimerMs.h>
+//  #include "GyverTimer.h" 
+
+#include <WIFI.h>
+#include <WiFiClientSecure.h>
+
+#include <PubSubClient.h>
+
+
+#define AP_SSID "TP-LINK"
+#define AP_PASS "214365Qq"
+#define WIFI_TIMEOUT_MS 20000
+#define WIFI_NETWORK "TP-LINK"
+#define WIFI_PASSWORD "214365Qq"
+// базовый пример работы с библиотекой, основные возможности. Загрузи и изучай код
+// WiFi
+const char *ssid = "TP-LINK"; // Enter your Wi-Fi name
+const char *password = "214365Qq";  // Enter Wi-Fi password
+
+// MQTT Broker
+const char *mqtt_broker = "m8.wqtt.ru";
+const char *topic = "topic/esp32";
+const char *TEMPR = "topic/TR";
+const char *TEMPW = "topic/TW";
+
+const char *mqtt_username = "wootang";
+const char *mqtt_password = "398958";
+const int mqtt_port = 14396;
+
+WiFiClient espClient;
+PubSubClient client(espClient, mqtt_server, mqtt_port);
+// WiFiClient wclient;
+// PubSubClient client(wclient, mqtt_server, mqtt_port);
+
+// // логин-пароль от роутера
+#include <LittleFS.h>
+
+#define GH_FS LittleFS
+
+ #define GH_NO_MQTT
+#define GH_INCLUDE_PORTAL
+#include <GyverHub.h>
+GyverHub hub;
+
+#include "ThingSpeak.h"
+
+#define CHANNEL_ID 1551807
+#define CHANNEL_API_KEY "EZVNSKEUD4RWXAAD"
+
+
+#define CHANNEL_ID2 1628917
+#define CHANNEL_API_KEY2 "R5VFO73Q37GESE3V"
+
+
+// WiFiClient client;
+// MQTTPubSubClient mqtt;
+
+ #include "PCF8575.h"
+
+ // Set i2c address
+ PCF8575 pcf8575(0x20);
+ PCF8575 pcf85752(0x21);
+
+ float Temperatura= 22;
+
+   bool autos=1;
+
+
+ float vent0=22.0;
+ float vent1=22.5;
+ float vent2=23.0;
+ float vent3=23.5;
+ float vent4=24.5;
+ float vent5=25.0;
+ float vent6=25.5;
+ float vent7=26.5;
+ float vent8=27.5;
+ float vent9=28.5;
+
+  float ventob0=80;
+ float ventob1=90;
+ float ventob2=100;
+ float ventob3=110;
+ float ventob4=120;
+ float ventob5=130;
+ float ventob6=140;
+ float ventob7=150;
+ float ventob8=160;
+float ventob9=180;
+
+
+float volt;
+float pwm27=80;
+float pwm100;
+
+
+ float ventel=0 ;
+
+
+ int timePoliv = 40000;
+ int timeDoliv = 180000;
+
+
+ #include <microDS3231.h>
+ MicroDS3231 rtc;
+
+
+ #include <Wire.h>
+ #include <LiquidCrystal_I2C.h>
+
+ LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+ const int capteur_D = 19;
+ const int capteur_A = 15;
+
+int ventpin = 27;           // контакт ШИМ, к которому подключен светодиод
+
+ const int UTECHKA_PIN = 5;
+ int val_utechka;
+ int val_utechkaD;
+
+ // (период, мс), (0 не запущен / 1 запущен), (режим: 0 период / 1 таймер)
+ TimerMs tmr(5000, 1, 0);
+ // TimerMs dolivpause(3000, 1, 1);
+ TimerMs textp(10000, 1, 0);
+ TimerMs tmrWF(20000, 1, 0);
+ // TimerMs WATERPING(5000, 1, 0);
+  TimerMs tmrvent(5000, 1, 0);
+
+//  GTimer dolivpause(MS);  // можно сразу указать период (по умолч. в режиме интервала)
+//  GTimer polivtimer(MS);  // можно сразу указать период (по умолч. в режиме интервала)
+
+
+ // int value = 0;
+ unsigned long next_time; // время очередного переключения первого светодиода
+ int timeout = 2500; // половина периода мигания
+ //int led_state = 0; // начальное состояние светодиода - выключен
+
+
+ int DP=1;
+ // int grelka_PIN;
+ int grelka;
+
+
+
+ // Текущее состояние сенсора
+ bool SensorStateWS = HIGH;
+ // Время начала смены
+ unsigned long SensorStartChangeWS = 0;
+ // Защитный интервал между сменами состояния
+ unsigned long TIMEOUTWS = 1000;
+ // Текущее время
+ unsigned long CurrentTimeWS = 0;
+
+
+
+ // Текущее состояние сенсора
+ bool SensorStateDS = HIGH;
+ // Время начала смены
+ unsigned long SensorStartChangeDS = 0;
+ // Защитный интервал между сменами состояния
+ unsigned long TIMEOUTDS = 2000;
+ // Текущее время
+ unsigned long CurrentTimeDS = 0;
+
+ // Пример использования библиотеки GyverButton, все возможности в одном скетче.
+ // автоматический тик
+
+
+ #include "Button2.h"
+
+ // Button2 button;
+ byte pin = 13;
+ /////////////////////////////////////////////////////////////////
+
+ Button2 button;
+  #define BUTTON_PIN  13
+
+
+ #include <OneWire.h>
+ #include <DallasTemperature.h>
+
+ #define ONE_WIRE_BUS 0
+
+OneWire oneWire(ONE_WIRE_BUS);
+
+DallasTemperature sensors(&oneWire);
+
+ DeviceAddress outsideThermometer = { 0x28, 0x2B, 0xC0, 0x57, 0x4, 0xE1, 0x3C, 0x1E };
+DeviceAddress  insideThermometer  = { 0x28, 0x57, 0xF, 0x57, 0x4, 0xE1, 0x3C, 0xB6 };
+
+   float Wtemp; // temperature in Celsius
+ int dolivSENS;
+ int waterSENS;
+ int podachawater;
+ int polivpompa;
+
+ float poliv;
+
+
+  int dolivpompa;
+ float Rtemp; // temperature in Celsius
+
+uint8_t tab=0;
+
+
+// // отключаем встроенную реализацию MQTT (для esp)
+
+// // MQTT
+// const char* mqtt_server = "m8.wqtt.ru";
+// const int mqtt_port = 14396;
+// const char* mqtt_user = "wootang";
+// const char* mqtt_password = "398958";
+
+// // SENSOR
+// const int sending_period = 5;
+// const bool retain_flag = false;
+// const char* temperature_topic = "bme280/temperature";
+// const char* humidity_topic = "bme280/humidity";
+// const char* pressure_topic = "bme280/pressure";
+// /////////////////////////////////////////////////////////
+
+
+// WiFiClient espClient;
+// PubSubClient client(espClient);
+
+// uint32_t tmr1;
+
+
+
+// bool relay_on = false;
+
+// void reconnect() {
+//   while (!client.connected()) {
+//     Serial.print("Attempting MQTT connection...");
+//     String clientId = "ESP8266-" + WiFi.macAddress();
+//     if (client.connect(clientId.c_str(), mqtt_user, mqtt_password) ) {
+//       Serial.println("connected");
+      
+//     } else {
+//       Serial.print("failed, rc=");
+//       Serial.print(client.state());
+//       Serial.println(" try again in 5 seconds");
+//       delay(5000);
+//     }
+//   }
+// }
+
+// void sendData() {
+//   float temperature =Wtemp;
+//   float pressure = ventel;
+//   float humidity = Rtemp;
+
+//   Serial.print("Temperature = ");
+//   Serial.print(temperature);
+//   Serial.println(" °C");
+//   Serial.print("Pressure = ");
+//   Serial.print(pressure);
+//   Serial.println(" mm");
+//   Serial.print("Humidity = ");
+//   Serial.print(humidity);
+//   Serial.println(" %");
+
+//   client.publish(temperature_topic, String(temperature).c_str(), retain_flag);
+//   client.publish(humidity_topic, String(humidity).c_str(), retain_flag);
+//   client.publish(pressure_topic, String(pressure).c_str(), retain_flag);
+// }
+
+
+
+ void pressed(Button2& btn) {
+     Serial.println("pressed");
+    	// pcf8575.digitalWrite(P3, LOW);
+     poliv=1;
+ //  dolivpause.setTimeout(timeDoliv);       //  пауза долива и подогрева
+ //   polivtimer.setTimeout(timePoliv);
+
+ }
+ void released(Button2& btn) {
+     Serial.print("released: ");
+     Serial.println(btn.wasPressedFor());
+    
+           	// pcf8575.digitalWrite(P3, LOW);
+ //  dolivpause.setTimeout(timeDoliv);       //  пауза долива и подогрева
+ //   polivtimer.setTimeout(timePoliv);
+ }
+ void changed(Button2& btn) {
+     Serial.println("changed");
+ }
+ void click(Button2& btn) {
+     Serial.println("click\n");
+         poliv=1;
+        	// pcf8575.digitalWrite(P3, LOW);
+ //  dolivpause.setTimeout(timeDoliv);       //  пауза долива и подогрева
+ //   polivtimer.setTimeout(timePoliv);
+ }
+ void longClickDetected(Button2& btn) {
+     Serial.println("long click detected");
+     poliv=0;
+ }
+ void longClick(Button2& btn) {
+     Serial.println("long click\n");
+         poliv=0;
+    	// pcf8575.digitalWrite(P3, HIGH);
+ }
+ void doubleClick(Button2& btn) {
+     Serial.println("double click\n");
+         poliv=1;
+         // pcf8575.digitalWrite(P3, LOW);
+
+ //  dolivpause.setTimeout(timeDoliv);       //  пауза долива и подогрева
+ //   polivtimer.setTimeout(timePoliv);
+ }
+ void tripleClick(Button2& btn) {
+     Serial.println("triple click\n");
+     Serial.println(btn.getNumberOfClicks());
+         poliv=0;
+ }
+ void tap(Button2& btn) {
+     Serial.println("tap");
+     poliv=1;
+ }
+
+
+
+// void build_mqtt(gh::Builder& b) {
+//     static String s1, s2;
+//     if (b.Input_("mqinp", &s1).click()) {
+//         Serial.print("mqinp set to: ");
+//         Serial.println(b.build.value);
+//     }
+//     if (b.Dummy_("dummy", &s2).click()) {
+//         Serial.print("dummy set to: ");
+//         Serial.println(b.build.value);
+//     }
+//     if (b.Button().click()) hub.sendGetStr("dummy", String(random(100) / 10.0, 2));
+// }
+
+
+
+// обработчик кнопки (см. ниже)
+void btn_cb() {
+    Serial.println("AUTO ON");
+        if (Rtemp <= vent0 && Rtemp <= vent1 ) {
+ ventel=0;
+   };
+
+     if (Rtemp >= vent1 && Rtemp <= vent2 ) {
+   ventel=1;
+    };
+
+  if (Rtemp >= vent2 && Rtemp <= vent3) {
+ ventel=2;
+     
+   };
+
+  if (Rtemp >= vent3 && Rtemp <= vent4) {
+ ventel=3;
+        };
+
+
+    if (Rtemp >= vent4 && Rtemp <= vent5) {
+ 	ventel=4;
+   };
+
+
+    if (Rtemp >= vent5 && Rtemp <= vent6) {
+ 	ventel=5;
+    };
+
+    if (Rtemp >= vent6 && Rtemp <= vent7) {
+   	ventel=6;
+         };
+    
+     if (Rtemp >= vent7 && Rtemp <= vent8) {
+ 	ventel=7; 
+  };
+
+  if (Rtemp >= vent8 && Rtemp <= vent9) {
+ 	ventel=8;
+  };
+    if (Rtemp >= vent9) {
+ 	ventel=9;
+     };
+
+}
+
+// обработчик кнопки с информацией о билде (см. ниже)
+void btn_cb_b(gh::Build& b) {
+    Serial.print("click 5 from client ID: ");
+    Serial.println(b.client.id);
+}
+
+
+
+// билдер
+// void build(gh::Builder& b) {
+    // =================== КОНТЕЙНЕРЫ ===================
+void build(gh::Builder& b) {
+ 
+ 
+    if (b.beginRow()) {
+
+  b.Slider(&vent0).label(F("VENT0")).color(gh::Colors::Red).size(1).range(20, 26, 0.5);
+       b.endRow();   }
+        if (b.beginRow()) {
+   b.Slider(&vent1).label(F("VENT1")).color(gh::Colors::Red).size(1).range(22, 27, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+    b.Slider(&vent2).label(F("VENT2")).color(gh::Colors::Red).size(1).range(23, 28, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+     b.Slider(&vent3).label(F("VENT3")).color(gh::Colors::Red).size(1).range(23.5, 29, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+      b.Slider(&vent4).label(F("VENT4")).color(gh::Colors::Red).size(1).range(24, 30, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+       b.Slider(&vent5).label(F("VENT5")).color(gh::Colors::Red).size(1).range(24.5, 31, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+        b.Slider(&vent6).label(F("VENT6")).color(gh::Colors::Red).size(1).range(25, 32, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+         b.Slider(&vent7).label(F("VENT7")).color(gh::Colors::Red).size(1).range(25.5, 33, 0.5);
+ b.endRow();   }
+        if (b.beginRow()) {
+          b.Slider(&vent8).label(F("VENT8")).color(gh::Colors::Red).size(1).range(26, 34, 0.5);
+
+       b.endRow();
+    }
+if (b.beginRow()) {
+          b.Slider(&vent9).label(F("VENT9")).color(gh::Colors::Red).size(1).range(26.5, 34, 0.5);
+
+       b.endRow();
+    }
+}
+
+void build_1(gh::Builder& b) {
+ if (b.beginRow()) {
+
+  b.Slider(&ventob0).label(F("ОБОРОТЫ-0")).color(gh::Colors::Blue).size(1).range(50, 80, 1);
+   b.endRow();   }
+        if (b.beginRow()) {
+   b.Slider(&ventob1).label(F("ОБОРОТЫ-1")).color(gh::Colors::Blue).size(1).range(80, 100, 1);
+    b.endRow();   }
+        if (b.beginRow()) {
+    b.Slider(&ventob2).label(F("ОБОРОТЫ-2")).color(gh::Colors::Blue).size(1).range(90, 120, 1);
+     b.endRow();   }
+        if (b.beginRow()) {
+     b.Slider(&ventob3).label(F("ОБОРОТЫ-3")).color(gh::Colors::Blue).size(1).range(100, 150, 1);
+      b.endRow();   }
+        if (b.beginRow()) {
+      b.Slider(&ventob4).label(F("ОБОРОТЫ-4")).color(gh::Colors::Blue).size(1).range(110, 180, 1);
+
+       b.endRow();   }
+        if (b.beginRow()) {
+       b.Slider(&ventob5).label(F("ОБОРОТЫ-5")).color(gh::Colors::Blue).size(1).range(120, 200, 1);
+        b.endRow();   }
+        if (b.beginRow()) {
+        b.Slider(&ventob6).label(F("ОБОРОТЫ-6")).color(gh::Colors::Blue).size(1).range(130, 220, 1);
+         b.endRow();   }
+        if (b.beginRow()) {
+         b.Slider(&ventob7).label(F("ОБОРОТЫ-7")).color(gh::Colors::Blue).size(1).range(140, 255, 1);
+          b.endRow();   }
+        if (b.beginRow()) {
+          b.Slider(&ventob8).label(F("ОБОРОТЫ-8")).color(gh::Colors::Blue).size(1).range(150, 255, 1);
+
+       b.endRow();
+    }
+ if (b.beginRow()) {
+          b.Slider(&ventob9).label(F("ОБОРОТЫ-9")).color(gh::Colors::Blue).size(1).range(160, 255, 1);
+
+       b.endRow();
+    }
+
+
+
+}
+
+//  if (b.beginRow()) {
+
+//   b.Slider(&ventel).label(F("СКОРОСТЬ")).color(gh::Colors::Green).size(1).range(0, 9, 1);
+//       b.endRow();} 
+
+
+
+
+void build_2(gh::Builder& b) {
+
+
+
+
+if (b.beginRow()) {
+
+  b.Slider(&Temperatura).label(F("Temperatura")).color(gh::Colors::Yellow).size(1).range(10, 27, 0.1, 1 );
+   
+    b.endRow();}
+
+   if (b.beginRow()) {
+    b.Label().label("Rtemp").size(2).valueFloat(Rtemp);   // с указанием стандартного значения
+
+     b.Label().label("Wtemp").size(2).valueFloat(Wtemp);   // с указанием стандартного значения
+   
+   b.Label().label("Temperatura").size(2).valueFloat(Temperatura); 
+
+   b.endRow();}
+
+
+ if (b.beginRow()) {
+
+
+     b.Slider(&ventel).label(F("СКОРОСТЬ")).color(gh::Colors::Green).size(1).range(0, 9, 1);
+
+
+    b.endRow();}
+
+
+//  if (b.beginRow()) {
+//         b.Label_("PWM")).size(2).valueInt(pwm27);  // с указанием стандартного значения
+
+//       b.Label_(F("Volt")).size(2).valueInt(volt);  // с указанием стандартного значения
+
+//         b.endRow();
+//     }
+
+
+
+// (&vent1).label(F("VENT1"))
+
+ if (b.beginRow()) {
+        // b.Label.label("pwm27").valueInt(pwm27);;  // с указанием стандартного значения
+
+   b.Label().label("volt").size(2).valueFloat(volt);   // с указанием стандартного значения
+//  b.Label().label("ШИМ").size(2).valueFloat(pwm27);   // с указанием стандартного значения
+  b.Input().label("pwm27").size(2).valueFloat(pwm27); 
+  b.Label().label("%").size(2).valueFloat(pwm100);  
+
+
+        b.endRow();
+    }
+
+
+if (b.beginRow()) {
+
+  b.Slider(&pwm27).label(F("pwm27")).color(gh::Colors::Yellow).size(1).range(80, 255, 1);
+   b.endRow();   }
+
+
+
+ if (b.beginRow()) {
+        // b.Input(&poliv).size(2);
+   if (b.Switch(&autos).label("AUTOS").size(1).click()) {
+Serial.println("AUTOS");
+
+Serial.println(autos);
+
+
+   }
+        // СПОСОБ 4
+        // подключить функцию-обработчик (см. выше)
+        b.Button().label("Sync T-V").attach(btn_cb);
+        // внутри обработки действия переменная уже будет иметь новое значение:
+        if (b.Switch(&poliv).label("POLIV").size(1).click()) {
+            Serial.print("poliv: ");
+            Serial.println(poliv);
+        }
+
+        b.endRow();
+    }
+
+// Temperatura
+//  if (b.beginRow()) {
+//         b.Input(&Wtemp).size(2);
+//        b.endRow();
+//     }
+//     // =================== ПАРАМЕТРЫ ВИДЖЕТА ===================
+
+    if (b.beginRow()) {
+        // параметры виджета можно задавать цепочкой. Например:
+        b.Button().label(F("my button")).color(gh::Colors::Red);
+
+        // также можно продолжить настраивать ПРЕДЫДУЩИЙ виджет, обратившись к widget:
+        b.Button();                        // кнопка без параметров
+        b.widget.label(F("button 2"));     // настраиваем кнопку выше
+        b.widget.color(gh::Colors::Blue);  // её же
+
+        b.endRow();
+    }
+
+    // =================== ДЕЙСТВИЯ ВИДЖЕТА ===================
+
+    // с активных виджетов можно получить сигнал о действии - клик или изменение значения
+    if (b.beginRow()) {
+        // // СПОСОБ 1
+        // // проверить условие click() - он вернёт true при действии
+        // // click() нужно вызывать ПОСЛЕДНИМ в цепочке!!!
+        // if (b.Button().click()) Serial.println("click 1");
+
+        // // СПОСОБ 2
+        // // подключить bool переменную - флаг
+        // bool flags=0;
+        // b.Button().attach(&flags);
+        // if (flags) Serial.println("click 2");
+
+        // // СПОСОБ 3
+        // // подключить gh::Flag переменную - флаг
+        // // данный флаг сам сбросится в false при проверке!
+        // gh::Flag gflag;
+        // b.Button().attach(&gflag);
+        // if (gflag) Serial.println("click 3");
+        // // здесь gflag уже false
+//    if (b.Switch(&autos).label("AUTOS").size(1).click()) {
+// Serial.println("AUTOS");
+
+// Serial.println(autos);
+
+
+//    }
+//         // СПОСОБ 4
+//         // подключить функцию-обработчик (см. выше)
+//         b.Button().attach(btn_cb);
+
+        // СПОСОБ 5
+        // подключить функцию-обработчик с инфо о билде (см. выше)
+        b.Button().attach(btn_cb_b);
+
+        // attach() может быть НЕ ПОСЛЕДНИМ в цепочке, также их может быть несколько:
+        // b.Button().attach(f1).attach(f2).label("kek");
+
+        b.endRow();
+    }
+
+    // =============== ПОДКЛЮЧЕНИЕ ПЕРЕМЕННОЙ ===============
+
+    // if (b.beginRow()) {
+    //     // библиотека позволяет подключить к активному виджету переменную для чтения и записи
+    //     // я создам статические переменные для ясности. Они могут быть глобальными и так далее
+    //     // таким образом изменения останутся при перезагрузке страницы
+    //     // static int sld;
+    //     static String inp;
+      
+
+    //     // для подключения нужно передать переменную по адресу
+    //     // библиотека сама определит тип переменной и будет брать из неё значение и записывать при действиях
+    //     // библиотека поддерживает все стандартные типы данных, а также некоторые свои (Pairs, Pos, Button, Log...)
+    //
+
+
+//  if (b.beginRow()) {
+//         b.Input(&Rtemp).size(2);
+
+//         // внутри обработки действия переменная уже будет иметь новое значение:
+//         if (b.Switch(&ventel).size(1).click()) {
+//             Serial.print("switch: ");
+//             Serial.println(ventel);
+//         }
+
+//         b.endRow();
+//     }
+
+
+    // ==================== ОБНОВЛЕНИЕ ====================
+
+    // библиотека позволяет обновлять значения на виджетах. Это можно делать
+    // - из основной программы (см. ниже)
+    // - из билдера - но только при действиях по виджетам!
+
+    // для отправки обновления нужно знать ИМЯ компонента. Его можно задать почти у всех виджетов
+    // к функции добавляется подчёркивание, всё остальное - как раньше
+
+    if (b.beginRow()) {
+        b.Label_(F("label")).size(2).valueStr("default");  // с указанием стандартного значения
+
+        if (b.Button().size(1).click()) {
+            hub.update(F("label")).valueInt(random(100, 500));
+        }
+
+        b.endRow();
+    }
+
+    // в самом низу сделаем заголовок, текст будем обновлять из loop() (см. ниже)
+    b.Title_(F("title"));
+
+    // =================== ИНФО О БИЛДЕ ===================
+
+    // можно получить информацию о билде и клиенте для своих целей
+    // поставь тут 1, чтобы включить вывод =)
+    if (1) {
+        // запрос информации о виджетах
+        if (b.build.isUI()) {
+            Serial.println("=== UI BUILD ===");
+        }
+
+        // действие с виджетом
+        if (b.build.isSet()) {
+            Serial.println("=== SET ===");
+            Serial.print("name: ");
+            Serial.println(b.build.name);
+            Serial.print("value: ");
+            Serial.println(b.build.value);
+        }
+
+        Serial.print("client from: ");
+        Serial.println(gh::readConnection(b.build.client.connection));
+        Serial.print("ID: ");
+        Serial.println(b.build.client.id);
+        Serial.println();
+    }
+     b.Hook_("Wtemp", &Wtemp);
+       
+         b.Hook_("ventob8", &ventob8);
+           b.Hook_("ventob7", &ventob7);
+             b.Hook_("ventob6", &ventob6);
+               b.Hook_("ventob5", &ventob5);
+                 b.Hook_("ventob4", &ventob4);
+                   b.Hook_("ventob3", &ventob3);
+                     b.Hook_("ventob2", &ventob2);
+                       b.Hook_("ventob1", &ventob1);
+                         b.Hook_("ventob0", &ventob0);
+                           b.Hook_("ventob9", &ventob9);
+                //              b.Hook_("ventob", &ventob);
+                //                b.Hook_("ventob", &ventob);
+                //                  b.Hook_("ventob", &ventob);
+
+}
+
+void build_Menu(gh::Builder& b) {
+  if (b.beginRow()) {
+    bool ref = false;
+
+    ref |= b.Tabs(&tab).text(F("1;2;3")).noLabel().size(2).click();
+    if (ref) b.refresh();
+    b.endRow();
+
+    switch (tab) {
+      // вкладки меню
+      case 0: build_2(b);              break;
+      case 1: build(b);      break;
+       case 2: build_1(b);       break;
+      // case 3: build_mqtt(b);           break;
+      // case 4: build_SettingsRoot(b);    break;
+      // меню, вызываемые по кнопкам
+      // case 10: build_ManualEQ(b);       break;
+      // case 11: build_SettingsEQ(b);     break;
+      // case 12: build_SettingsNight(b);  break;
+    }
+  }
+}
+
+
+// void callback(char *topic, byte *payload, unsigned int length) {
+//     Serial.print("Message arrived in topic: ");
+//     Serial.println(topic);
+//     Serial.print("Message:");
+//     for (int i = 0; i < length; i++) {
+//         Serial.print((char) payload[i]);
+//     }
+//     Serial.println();
+//     Serial.println("-----------------------");
+// }
+// Функция получения данных от сервера
+
+void callback(const MQTT::Publish& pub)
+{
+Serial.print(pub.topic()); // выводим в сериал порт название топика
+Serial.print(" => ");
+Serial.print(pub.payload_string()); // выводим в сериал порт значение полученных данных
+
+String payload = pub.payload_string();
+
+if(String(pub.topic()) == "test/led") // проверяем из нужного ли нам топика пришли данные
+{
+int stled = payload.toInt(); // преобразуем полученные данные в тип integer
+digitalWrite(5,stled); // включаем или выключаем светодиод в зависимоти от полученных значений данных
+}
+}
+
+
+void setup() {
+    Serial.begin(115200);
+
+  sensors.begin();
+ 
+   lcd.begin(SDA, SCL); //initialize 1602  LiquidCrystal_I2C::begin(int8_t sda, int8_t scl)
+   // Print a message to the LCD.
+   lcd.backlight();
+   lcd.setCursor(0, 0);
+   lcd.print("Hello, world!");
+   lcd.setCursor(0, 1);
+   lcd.print("by EasyIoT");
+ // sensors.begin();
+  Serial.begin(115200);
+    Serial.print("Locating devices...");
+   Serial.print("Found ");
+   // Serial.print(sensors.getDeviceCount(), DEC);
+   Serial.println(" devices.");
+
+    // start serial port
+
+   Serial.println("Dallas Temperature IC Control Library Demo");
+
+ WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.println("Connecting to WiFi..");
+    }
+    Serial.println("Connected to the Wi-Fi network");
+    //connecting to a mqtt broker
+    client.setServer(mqtt_broker, mqtt_port);
+    client.setCallback(callback);
+    while (!client.connected()) {
+        String client_id = "esp32-client-";
+        client_id += String(WiFi.macAddress());
+        Serial.printf("The client %s connects to the public MQTT broker\n", client_id.c_str());
+        if (client.connect(client_id.c_str(), mqtt_username, mqtt_password)) {
+            Serial.println("Public EMQX MQTT broker connected");
+        } else {
+            Serial.print("failed with state ");
+            Serial.print(client.state());
+            delay(2000);
+        }
+    }
+    // Publish and subscribe
+    client.publish(topic, "Hi, I'm ESP32 ^^");
+    client.subscribe(topic);
+ Serial.print(topic);
+
+
+//     // подключение к роутеру
+//     WiFi.mode(WIFI_STA);
+//     WiFi.begin(AP_SSID, AP_PASS);
+//     while (WiFi.status() != WL_CONNECTED) {
+//         delay(500);
+//         Serial.print(".");
+//     }
+//     Serial.println();
+//     Serial.println(WiFi.localIP());
+//  // запуск!
+ 
+//  mqtt.begin(client);
+// client.connect("m8.wqtt.ru", 14396);
+// mqtt.connect("arduino", "public", "public");
+
+    hub.begin();
+    // если нужен MQTT - подключаемся
+    // hub.mqtt.config("test.mosquitto.org", 1883);
+    // hub.mqtt.config("test.mosquitto.org", 1883, "login", "pass");
+// hub.mqtt.config("m8.wqtt.ru", 14396, "wootang", "398958");
+  // указать префикс сети, имя устройства и иконку
+    hub.config(F("TP-LINK"), F("testesp32"), F(""));
+
+    // подключить билдер
+    hub.onBuild(build_Menu);
+
+   
+  hub.setVersion("v1.12");      // установить версию (отображается в info)
+  hub.setPIN(3989);            // установить пин-код
+  hub.sendGetAuto(true); 
+
+
+     button.begin(BUTTON_PIN);
+     // pinMode(BUTTON_PIN);
+   button.setLongClickTime(3000);
+   button.setDoubleClickTime(300);
+  button.setChangedHandler(changed);
+    button.setPressedHandler(pressed);
+   button.setReleasedHandler(released);
+
+   // button.setTapHandler(tap);
+   button.setClickHandler(click);
+   button.setLongClickDetectedHandler(longClickDetected);
+   button.setLongClickHandler(longClick);
+   button.setLongClickDetectedRetriggerable(false);
+  
+   button.setDoubleClickHandler(doubleClick);
+   button.setTripleClickHandler(tripleClick);
+
+
+
+  
+ pcf8575.begin();
+  pcf85752.begin();
+
+ 
+ // #define P00  	0
+ // 	#define P01  	1
+ // 	#define P02  	2
+ // 	#define P03  	3
+ // 	#define P04  	4
+ // 	#define P05  	5
+ // 	#define P06  	6
+ // 	#define P07  	7
+ // 	#define P10  	8
+ // 	#define P11  	9
+ // 	#define P12  	10
+ // 	#define P13  	11
+ // 	#define P14  	12
+ // 	#define P15  	13
+ // 	#define P16  	14
+ // 	#define P17  	15
+ 	pcf8575.pinMode(P0, OUTPUT);
+   pcf8575.pinMode(P1, OUTPUT);
+   pcf8575.pinMode(P2, OUTPUT);
+   pcf8575.pinMode(P3, OUTPUT);
+   pcf8575.pinMode(P4, OUTPUT);
+   pcf8575.pinMode(P5, OUTPUT);
+   pcf8575.pinMode(P6, OUTPUT);
+   pcf8575.pinMode(P7, OUTPUT);
+   pcf8575.pinMode(P8, OUTPUT);
+   pcf8575.pinMode(P9, OUTPUT);
+
+ pcf8575.pinMode(P10, OUTPUT);
+ pcf8575.pinMode(P11, OUTPUT);
+ pcf8575.pinMode(P12, OUTPUT);
+ pcf8575.pinMode(P15, OUTPUT);
+ pcf8575.pinMode(P14, OUTPUT);
+ pcf8575.pinMode(P13, OUTPUT);
+
+ pcf8575.digitalWrite(P0, HIGH);
+
+
+ 	pcf8575.digitalWrite(P1, HIGH);
+
+
+
+ 	pcf8575.digitalWrite(P2, HIGH);
+
+ 	pcf8575.digitalWrite(P3, HIGH);
+	
+ 	pcf8575.digitalWrite(P4, HIGH);
+
+ 	pcf8575.digitalWrite(P5, HIGH);
+
+ 	pcf8575.digitalWrite(P6, HIGH);
+
+ 	pcf8575.digitalWrite(P7, HIGH);
+
+ 	pcf8575.digitalWrite(P8, HIGH);
+
+ 	pcf8575.digitalWrite(P9, HIGH);
+
+
+   	pcf8575.digitalWrite(P10, HIGH);
+
+   	pcf8575.digitalWrite(P11, HIGH);
+
+ 	pcf8575.digitalWrite(P12, HIGH);
+
+      	pcf8575.digitalWrite(P13, HIGH);
+
+     	pcf8575.digitalWrite(P14, HIGH);
+
+     	pcf8575.digitalWrite(P15, HIGH);
+
+
+
+ 	pcf85752.pinMode(P0, OUTPUT);
+   pcf85752.pinMode(P1, OUTPUT);
+   pcf85752.pinMode(P2, OUTPUT);
+   pcf85752.pinMode(P3, OUTPUT);
+   pcf85752.pinMode(P4, OUTPUT);
+   pcf85752.pinMode(P5, OUTPUT);
+   pcf85752.pinMode(P6, OUTPUT);
+   pcf85752.pinMode(P7, OUTPUT);
+   pcf85752.pinMode(P8, OUTPUT);
+   pcf85752.pinMode(P9, OUTPUT);
+
+ pcf85752.pinMode(P10, OUTPUT);
+ pcf85752.pinMode(P11, OUTPUT);
+ pcf85752.pinMode(P12, OUTPUT);
+ pcf85752.pinMode(P15, OUTPUT);
+ pcf85752.pinMode(P14, OUTPUT);
+ pcf85752.pinMode(P13, OUTPUT);
+
+
+
+ pcf85752.digitalWrite(P0, HIGH);
+
+
+ 	pcf85752.digitalWrite(P1, HIGH);
+
+
+
+ 	pcf85752.digitalWrite(P2, HIGH);
+
+ 	pcf85752.digitalWrite(P3, HIGH);
+	
+ 	pcf85752.digitalWrite(P4, HIGH);
+
+ 	pcf85752.digitalWrite(P5, HIGH);
+
+ 	pcf85752.digitalWrite(P6, HIGH);
+
+ 	pcf85752.digitalWrite(P7, HIGH);
+
+ 	pcf85752.digitalWrite(P8, HIGH);
+
+ 	pcf85752.digitalWrite(P9, HIGH);
+
+
+   	pcf85752.digitalWrite(P10, HIGH);
+
+   	pcf85752.digitalWrite(P11, HIGH);
+
+ 	pcf85752.digitalWrite(P12, HIGH);
+
+      	pcf85752.digitalWrite(P13, HIGH);
+
+     	pcf85752.digitalWrite(P14, HIGH);
+
+     	pcf85752.digitalWrite(P15, HIGH);
+
+   // Serial.println(" Longpress Time:\t" + String(button.getLongClickTime()) + "ms");
+   // Serial.println(" DoubleClick Time:\t" + String(button.getDoubleClickTime()) + "ms");
+   // Serial.println();
+
+    pinMode(ventpin, OUTPUT); // объявляем  вывод ШИМ как выход:
+
+//  // tmrWF.setTimerMode();
+//  tmrWF.setPeriodMode();
+//  // tmr.setPeriodMode();
+//  // tmr2.setPeriodMode();
+//  textp.setPeriodMode();
+
+
+    // настройка таймаута на удержание (по умолчанию 500 мс)
+
+
+
+
+  //  sensor_inhouse.begin();
+  //  sensor_outhouse.begin();
+   // проверка наличия модуля на линии i2c
+  rtc.begin();
+   
+ pinMode(4, INPUT); // СЕНСОР ДОЛИВА
+ pinMode(17, INPUT);    // СЕНСОР ПОДАЧИ ВОДЫ (ВЕРХ)
+ pinMode(19, INPUT); //sens 1
+ pinMode(15, INPUT);
+
+  rtc.setTime(BUILD_SEC, BUILD_MIN, BUILD_HOUR, BUILD_DAY, BUILD_MONTH, BUILD_YEAR);
+
+  
+
+   lcd.clear();
+
+//   connectToWiFi(); // this function comes from a previous video
+  
+   ThingSpeak.begin(espClient);
+
+
+
+
+//  mqtt.subscribe([](const String& topic, const String& payload, const size_t size) {
+//         Serial.println("mqtt received: " + topic + " - " + payload);
+//     });
+
+//     // subscribe topic and callback which is called when /hello has come
+//     mqtt.subscribe("/hello", [](const String& payload, const size_t size) {
+//         Serial.print("/hello ");
+//         Serial.println(payload);
+//     });
+// //  setup_wifi();
+ 
+}
+
+
+
+// };
+
+void loop() {
+    
+  // добавить меню и 
+ 
+
+
+
+
+  hub.tick();
+
+    // =========== ОБНОВЛЕНИЯ ПО ТАЙМЕРУ ===========
+    // в библиотеке предусмотрен удобный класс асинхронного таймера
+    static gh::Timer tmr(1000);  // период 1 секунда
+
+    // каждую секунду будем обновлять заголовок
+    if (tmr) {
+        hub.update(F("title")).valueInt(millis());
+    };
+
+
+  DateTime now = rtc.getTime();
+   button.loop();
+
+
+ val_utechkaD = digitalRead(19);
+
+
+
+       dolivSENS = digitalRead(4);
+
+   waterSENS = digitalRead(17);
+
+
+
+
+
+     podachawater =  pcf8575.digitalRead(P1);
+       polivpompa = !pcf8575.digitalRead(P3);
+    dolivpompa = pcf8575.digitalRead(P8);
+
+
+
+
+
+
+     lcd.setCursor(0,0);
+   lcd.print(rtc.getTimeString());
+   
+
+
+
+
+
+ // Устанавливаем текущее время
+   CurrentTimeWS = millis();
+   // считываем сенсор
+   boolean CurrentStateWS = waterSENS;
+   // если текущее состояние сенсора отличается считанного
+   if (CurrentStateWS != SensorStateWS) {
+     // если отсчет таймера смены состояния не начат, начинаем
+     if (SensorStartChangeWS == 0) SensorStartChangeWS = CurrentTimeWS;
+     // если новое состояние приняло свое значение за время большее чем время таймаута
+     if (CurrentTimeWS - SensorStartChangeWS > TIMEOUTWS) {
+         // меняем состояние сенсора
+         SensorStateWS=!SensorStateWS;
+         // сбрасываем время начала смены состояния
+         SensorStartChangeWS = 0;
+         // если текущее состояние сенсора 1, то включаем светодиод
+         if(SensorStateWS){
+           	pcf8575.digitalWrite(P1, HIGH);
+         // если текущее состояние сенсора 0, то выключаем светодиод
+         }else{
+          pcf8575.digitalWrite(P1, LOW);
+         }
+     }
+   // смена состояния не состоялась, сбрасываем таймер
+   }else{
+     SensorStartChangeWS = 0;
+   };
+
+
+ // Устанавливаем текущее время
+   CurrentTimeDS = millis();
+   // считываем сенсор
+   boolean CurrentStateDS = dolivSENS;
+   // если текущее состояние сенсора отличается считанного
+   if (CurrentStateDS != SensorStateDS) {
+     // если отсчет таймера смены состояния не начат, начинаем
+     if (SensorStartChangeDS == 0) SensorStartChangeDS = CurrentTimeDS;
+     // если новое состояние приняло свое значение за время большее чем время таймаута
+     if (CurrentTimeDS - SensorStartChangeDS > TIMEOUTDS) {
+         // меняем состояние сенсора
+         SensorStateDS=!SensorStateDS;
+         // сбрасываем время начала смены состояния
+         SensorStartChangeDS = 0;
+         // если текущее состояние сенсора 1, то включаем светодиод
+         if(SensorStateDS){
+           	pcf8575.digitalWrite(P8, HIGH);
+         // если текущее состояние сенсора 0, то выключаем светодиод
+         }else{
+          pcf8575.digitalWrite(P8, LOW);
+         }
+     }
+   // смена состояния не состоялась, сбрасываем таймер
+   }else{
+     SensorStartChangeDS = 0;
+   };
+
+
+
+ if (poliv==1) {
+     // Serial.println("poliv on");
+    pcf8575.digitalWrite(P3, LOW);
+   };
+
+ if (poliv==0) {
+     // Serial.println("poliv oFF");
+    pcf8575.digitalWrite(P3, HIGH);
+   };
+
+
+  sensors.requestTemperatures();
+   float Wtempl=sensors.getTempC(insideThermometer);
+
+
+  float Rtempl=sensors.getTempC(outsideThermometer);
+
+
+  if  (Wtempl >=10 && Wtempl <=50) {
+ Wtemp = Wtempl;};
+
+ if  (Rtempl >=10 && Rtempl <=50) {
+ Rtemp = Rtempl;};
+
+
+ if (tmr.tick()){
+
+ 
+ 
+ float grelkatime = now.hour;
+  // if (grelkatime >=10.00 && grelkatime <=21.00){
+     if (Wtemp < Temperatura && Wtemp >= 11) {
+   	pcf8575.digitalWrite(P2, LOW);
+     grelka = 1;
+     //  Serial.println(grelkatime);
+   }
+     else  {
+   	pcf8575.digitalWrite(P2, HIGH);
+     grelka = 0;
+
+  //  }
+  };
+
+
+ 
+
+volt = 10000/255*pwm27/1000;
+
+
+pwm100 = pwm27/255*100;
+
+
+ if (autos == 1) {
+
+    if (Rtemp <= vent0 && Rtemp <= vent1 ) {
+ ventel=0;
+   
+   };
+
+     if (Rtemp >= vent1 && Rtemp <= vent2 ) {
+   ventel=1;
+   
+   };
+
+  if (Rtemp >= vent2 && Rtemp <= vent3) {
+ ventel=2;;
+     
+   };
+
+  if (Rtemp >= vent3 && Rtemp <= vent4) {
+ ventel=3;
+    
+   };
+
+
+    if (Rtemp >= vent4 && Rtemp <= vent5) {
+ 	ventel=4;
+    
+   };
+
+
+    if (Rtemp >= vent5 && Rtemp <= vent6) {
+ 	ventel=5;
+ 
+   };
+
+    if (Rtemp >= vent6 && Rtemp <= vent7) {
+   	ventel=6;
+    
+    };
+    
+     if (Rtemp >= vent7 && Rtemp <= vent8) {
+ 	ventel=7;
+      
+     };
+
+
+  if (Rtemp >= vent8 && Rtemp <= vent9) {
+ 	ventel=8;
+    
+   };
+    if (Rtemp >= vent9) {
+ 	ventel=9;
+      
+     };
+
+
+
+ };
+  
+
+
+
+
+
+//   int pwm27;
+   
+ if (tmrWF.tick()){
+
+
+   Serial.println("SENDED");
+
+  ThingSpeak.setField(1, Wtemp);
+   ThingSpeak.setField(2, Rtemp);
+    ThingSpeak.setField(3, waterSENS);
+   ThingSpeak.setField(4, dolivSENS);
+
+    ThingSpeak.setField(5, grelka);
+   ThingSpeak.setField(6, podachawater);
+    ThingSpeak.setField(7, dolivpompa);
+  ThingSpeak.setField(8, polivpompa);
+
+   ThingSpeak.writeFields(CHANNEL_ID, CHANNEL_API_KEY);
+
+
+  ThingSpeak.setField(1, ventel);
+   ThingSpeak.setField(2, digitalRead(19));
+    ThingSpeak.setField(3, waterSENS);
+   ThingSpeak.setField(4, dolivSENS);
+
+    ThingSpeak.setField(5, grelka);
+   ThingSpeak.setField(6, podachawater);
+    ThingSpeak.setField(7, dolivpompa);
+   ThingSpeak.setField(8, ventel);
+ //  ThingSpeak.setField(9, ventel);
+   ThingSpeak.writeFields(CHANNEL_ID2, CHANNEL_API_KEY2);
+
+
+ };
+
+
+
+
+
+  if (textp.tick()){
+
+
+   Serial.println();
+
+
+  if  (Wtemp >=10) {
+     Serial.print("Sensor W(*C): ");
+   Serial.print(Wtemp, 2);
+ 
+   };
+   Serial.println();
+
+  if  (Rtemp >=10) {
+     Serial.print("Sensor R(*C): ");
+   Serial.print(Rtemp, 2);
+   };
+ 
+
+ Serial.println();
+
+Serial.println("VENTEL---");Serial.print(pwm27);
+
+
+
+ if (ventel==0) {
+
+    //  Serial.println("VENT-0");
+         lcd.setCursor(10, 3);
+   lcd.print("V-0");
+  
+   };
+
+     if (ventel==1) {
+
+    //   Serial.println("VENT-1");
+        lcd.setCursor(10, 3);
+   lcd.print("V-1");
+
+   };
+
+  if (ventel==2) {
+ 
+        //  Serial.println("VENT-2");
+             lcd.setCursor(10, 3);
+   lcd.print("V-2");
+            
+
+   };
+
+  if (ventel==3) {
+ 
+        //  Serial.println("VENT-3");
+        
+   lcd.setCursor(10, 3);
+   lcd.print("V-3");
+ 
+
+ 
+   };
+
+
+    if (ventel==4) {
+ 	
+        //  Serial.println("VENT-4");
+        
+     lcd.setCursor(10, 3);
+   lcd.print("V-4");
+ 
+
+ 
+   };
+
+
+    if (ventel==5) {
+
+        //  Serial.println("VENT-5");
+        
+    lcd.setCursor(10, 3);
+   lcd.print("V-5");
+ 
+
+ 
+   };
+
+
+
+    if (ventel==6) {
+  
+        //  Serial.println("VENT-6");
+              lcd.setCursor(10, 3);
+   lcd.print("V-6");
+
+    };
+    
+
+
+
+
+     if (ventel==7) {
+ 	
+        //  Serial.println("VENT-7");
+        
+       lcd.setCursor(10, 3);
+   lcd.print("V-7");
+     };
+
+
+  if (ventel==8) {
+ 
+        //  Serial.println("VENT-8");
+        
+       lcd.setCursor(10, 3);
+   lcd.print("V-8");
+
+   };
+    if (ventel==9) {
+ 
+        //  Serial.println("VENT-9");
+        
+       lcd.setCursor(10, 3);
+   lcd.print("V-9");
+     };
+
+
+
+
+
+
+
+   lcd.setCursor(0 ,2);
+   lcd.print("WS-");
+   lcd.setCursor(3, 2);
+   lcd.print(waterSENS);
+
+     lcd.setCursor(0, 3);
+   lcd.print("DS-");
+   lcd.setCursor(3, 3);
+   lcd.print(dolivSENS);
+
+  lcd.setCursor(10, 0);
+   lcd.print("W-");
+   lcd.setCursor(12, 0);
+   lcd.print(Wtemp, 2);
+
+   lcd.setCursor(0,1);
+   lcd.print("220-");
+   lcd.setCursor(4,1);
+   lcd.print(val_utechkaD);
+
+  lcd.setCursor(10, 1);
+   lcd.print("R-");
+   lcd.setCursor(12, 1);
+   lcd.print(Rtemp, 2);
+
+
+
+  lcd.setCursor(12, 2);
+   lcd.print("T-");
+   lcd.setCursor(15, 2);
+   lcd.print(Temperatura, 2);
+
+
+
+   
+
+  Serial.print("Кипятильник-");
+  if  (grelka ==1) {
+     Serial.println("ВКЛ ");
+  
+   }
+     else  {
+       Serial.println("ВЫКЛ ");
+   };
+
+
+ Serial.print("СЕНСОР НИЖНИЙ УРОВНЯ ВОДЫ--");
+  if  (dolivSENS == 1) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+
+
+
+ Serial.print("СЕНСОР ВЕРХНИЙ УРОВНЯ ВОДЫ---");
+  if  (waterSENS == 1) {
+     Serial.println(" ВКЛ ");
+  
+   };
+    if  (waterSENS == 0) {
+       Serial.println(" ВЫКЛ ");
+   };
+
+
+ Serial.print("Помпа на долив--");
+  if  (dolivpompa ==0) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+ Serial.print("Помпа на Полив--");
+  if  (polivpompa ==0) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+ Serial.print("Подача воды с фильтра--");
+  if  (podachawater ==0) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+
+
+
+ Serial.print("переменная долива--");
+  if  (DP >=0) {
+     Serial.println(" ВКЛ ");
+  
+   }
+     else  {
+       Serial.println(" ВЫКЛ ");
+   };
+
+ if(digitalRead(19) == 0)
+   {
+  	pcf8575.digitalWrite(P4, LOW);
+     Serial.println("УТЕЧКА ВОДЫ/220 ОБЕСТОЧЕНО");
+     Serial.println(" ");
+   };
+
+
+ if(digitalRead(19) == 1)
+   {
+   	pcf8575.digitalWrite(P4, HIGH);
+     Serial.println("УТЕЧКИ ВОДЫ НЕТ");
+     Serial.println(" ");
+   };
+
+   };
+  
+
+ if (tmrvent.tick()){
+
+if (ventel == 0) {
+   pwm27 = ventob0;
+ analogWrite(ventpin, pwm27); 
+  
+   };
+
+   if (ventel == 1) {
+     pwm27 = ventob1;
+  analogWrite(ventpin, pwm27); 
+  
+ };
+
+     if (ventel == 2) {
+         pwm27 = ventob2;
+   analogWrite(ventpin, pwm27); 
+  
+ };
+       if (ventel == 3) {
+         pwm27 = ventob3;
+  analogWrite(ventpin, pwm27); 
+   
+ };
+
+         if (ventel == 4) {
+             pwm27 = ventob4;
+  analogWrite(ventpin, pwm27); 
+   
+ };
+           if (ventel == 5) {
+             pwm27 == ventob5;
+  analogWrite(ventpin, pwm27); 
+   
+ };
+             if (ventel == 6) {
+                 pwm27 = ventob6;
+  analogWrite(ventpin, pwm27); 
+   
+ };
+
+             if (ventel == 7) {
+                 pwm27 = ventob7;
+  analogWrite(ventpin, pwm27); 
+   
+ };
+
+  if (ventel == 8) {
+     pwm27 = ventob8;
+  analogWrite(ventpin, pwm27); 
+ 
+ };
+
+  if (ventel == 9) {
+     pwm27 = ventob9;
+  analogWrite(ventpin, pwm27); 
+ 
+ };
+
+
+  client.loop();
+
+
+  if (ventel != ventel) {
+   Serial.print("VENTEL-");
+Serial.println(ventel);
+ };
+
+ };
+
+
+
+   client.publish(topic, "Hi, I'm ESP32 ^^");
+    client.subscribe(topic);
+ Serial.print(topic);
+
+
+   client.publish("topic/TR", String(Rtemp));
+    client.subscribe(TEMPR);
+ Serial.print(TEMPR);
+
+
+    client.publish("topic/TW", String(Wtemp));
+    client.subscribe(TEMPW);
+ Serial.print(TEMPW);
+// mqtt.update();
+//   // publish message
+//     static uint32_t prev_ms = millis();
+//     if (millis() > prev_ms + 1000) {
+//         prev_ms = millis();
+//         mqtt.publish("/hello", "world");
+//     }
+//   // if (!client.connected()) {
+//   //   reconnect();
+//   // }
+//   // client.loop();
+
+//   // if (millis() - tmr1 >= (sending_period * 1000)) {
+//   //   tmr1 = millis();
+//   //   sendData();
+//   // }
+
+};};

@@ -1,0 +1,100 @@
+
+/*
+
+  GraphicsTest.ino
+
+  Universal 8bit Graphics Library (https://github.com/olikraus/u8g2/)
+
+  Copyright (c) 2016, olikraus@gmail.com
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice, this list 
+    of conditions and the following disclaimer.
+    
+  * Redistributions in binary form must reproduce the above copyright notice, this 
+    list of conditions and the following disclaimer in the documentation and/or other 
+    materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
+  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
+  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
+  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  
+
+ Nicu FLORICA (niq_ro) used info from:
+   https://aliexpress.ru/item/1005004617618178.html?sku_id=12000029849830576
+   https://pastebin.com/cMgTQMQd
+   https://www.waveshare.com/wiki/RP2040-Zero
+   https://nicuflorica.blogspot.com/
+*/
+
+#include <Arduino.h>
+#include <U8g2lib.h>
+
+#include <Wire.h>
+ #include <WiFi.h>
+ #include <WiFiClientSecure.h>
+#define SCL_PIN SCL  // SCL pin of OLED. Default: GP5 (I2CO SCL for RP2040)
+#define SDA_PIN SDA  // SDA pin of OLED. Default: GP4 (I2CO SDA for RP2040)
+#define u8g2_PIN_NONE 100
+
+//U8G2_ST7567_ENH_DG128064I_F_SW_I2C u8g2(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
+U8G2_ST7567_ENH_DG128064I_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);  // this works with RP2040
+String weekDays[7]={"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
+
+void setup(void) {
+  u8g2.setI2CAddress (0x7E);  //(0x3F * 2); 
+  u8g2.begin();  
+  u8g2.setContrast(255);
+        u8g2.clearBuffer(); // clear the internal memory
+        u8g2.setFont(u8g2_font_ncenB08_tr); 
+        //u8g2.setFont(u8g2_font_cu12_tr);
+        u8g2.drawStr(15, 10, "RP2040-Zero board"); // write something to the internal memory
+        u8g2.drawStr(30, 25, "with 128x64"); // write something to the internal memory
+        u8g2.drawStr(20, 45, "ST7567S display"); // write something to the internal memory
+        u8g2.drawStr(0, 60, "using Arduino u8g2lib"); // write something to the internal memory
+        u8g2.sendBuffer(); // transfer internal memory to the display
+       float poliv= 5;
+      u8g2.print(50000);
+         u8g2.clearBuffer(); // clear the internal memory
+        u8g2.setCursor(0,10);
+  u8g2.setFont(u8g2_font_ncenB08_tr); 
+  int waterSENS=200;
+   u8g2.setCursor(30,10);
+  u8g2.print(waterSENS);
+        u8g2.sendBuffer(); 
+         u8g2.setCursor(60,10);
+u8g2.print(poliv);
+        
+        delay(3000);
+}
+
+uint8_t h = 23;
+uint8_t m = 24;
+byte i = 0;
+
+void loop(void) {
+
+   // transfer internal memory to the display
+u8g2.setCursor(0,50);
+  u8g2.setFont(u8g2_font_ncenB08_tr); 
+  int waterSENS=2005550;
+  u8g2.print(3000);
+   delay(3000);
+ u8g2.print(waterSENS); 
+ u8g2.sendBuffer();
+u8g2.clearBuffer(); // clear the internal memory
+    // int waterSENS=55500;
+} // end main loop
